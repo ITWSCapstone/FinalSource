@@ -1180,15 +1180,6 @@ shinyServer(function(session, input, output) {
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
   GoogleDataTrend <- reactive({
     query=input$query
     if (is.null(query)) {
