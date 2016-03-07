@@ -6,36 +6,43 @@ shinyServer(function(input, output, session) {
   #############################
   # DATA INPUT + MANIPULATION #
   #############################
-  
-  # EXPORT DATA TO TABLE
-  output$mydata <- renderDataTable({
+  tbl<-reactive({ #tbl()=user input or sample iris data
     inFile <- input$file1
     if (is.null(inFile)) {
-      tbl<-(iris)
+      return (iris)
     }
     else{
-      tbl <- read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote)  
+      read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote)  
     }
-    return (tbl)
-  },options=list(lengthMenu=c(10,20,30,40,50),pageLength=10))
-  
-  output$choose_columns <- renderUI({
-    if(is.null(input$dataset)){
-      colnames<-names(iris)
-    }
-    else{
-      colnames <- names(tbl) 
-    }
-    checkboxGroupInput("columns", "Choose columns", choices  = colnames)
   })
   
+
+  # EXPORT DATA TO TABLE
+  output$mydata <- DT::renderDataTable({
+    return (tbl())
+  },extensions = 'TableTools',options = list(searchHighlight=TRUE,rownames=FALSE,
+      "sDom" = 'T<"clear">lfrtip',"oTableTools" = list("sSwfPath" = "//cdnjs.cloudflare.com/ajax/libs/datatables-tabletools/2.1.5/swf/copy_csv_xls.swf",
+      "aButtons" = list("copy","print",list("sExtends" = "collection","sButtonText" = "Save","aButtons" = c("csv","xls")))
+    )
+  ))
+  
+
   #################
   # VISUALIZATION #
   #################
   
   # BOXPLOTS
+  output$choose_column1 <- renderUI({
+    selectInput("column1", "Choose column", names(tbl()))
+  })
   output$boxplot<-renderPlot({
-    boxplot(iris$Sepal.Length)
+    if (is.null(input$column1)){
+      b<-tbl()[1]
+    }
+    else {
+      b<-tbl()[input$column1]
+    }
+    boxplot(b)
   })
   
   #################
@@ -43,9 +50,19 @@ shinyServer(function(input, output, session) {
   #################
   
   # K-MEANS CLUSTERING
-  selectedData <- reactive({iris[, c(input$xcol, input$ycol)]})
+  output$choose_kmeansX <- renderUI({
+    selectInput('xcol', 'X Variable', names(tbl()))
+  })
+  output$choose_kmeansY <- renderUI({
+    selectInput('ycol', 'Y Variable', names(tbl()),selected=names(tbl())[[2]])
+  })
+  selectedData <- reactive({tbl()[, c(input$xcol, input$ycol)]})
   clusters <- reactive({kmeans(selectedData(), input$clusters)})
   output$kmeans <- renderPlot({
+    validate( #error handling
+      need(!is.na(tbl()[input$xcol]) || !is.na(tbl()[input$ycol]), " * Non-Numeric Column-please reformat data or select a different column")
+    )
+  
     par(mar = c(5.1, 4.1, 0, 1))
     plot(selectedData(), col = clusters()$cluster, pch = 20, cex = 3)
     points(clusters()$centers, pch = 4, cex = 4, lwd = 4)
