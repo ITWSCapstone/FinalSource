@@ -1,0 +1,25 @@
+.dataTables_wrapper { overflow-x: scroll; }
+.shiny-output-error { visibility: hidden; }
+.shiny-output-error:before { visibility: hidden; }
+
+.carousel-indicators li {
+  background-color: #DDD;
+  background-color: rgba(70,70,70,.25);
+}
+.carousel-indicators .active {
+  background-color: #999;
+}
+.carousel-indicators {
+  bottom: 15px !important;
+  top: auto;
+  list-style: none outside none;
+  margin: 0;
+  position: absolute;
+  right: 70px;
+  z-index: 5;
+}
+.carousel-control {
+  opacity: 0.2;
+  border: none;
+   top: auto;
+}

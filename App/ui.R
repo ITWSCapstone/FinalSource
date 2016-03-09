@@ -1,17 +1,13 @@
 library(shiny)
 library(shinydashboard)
+library(shinyBS)
 library(DT)
 
-dashboardPage(skin="red",
+dashboardPage(
   dashboardHeader(title='Forecasting Analytics'),
   dashboardSidebar(
     tags$head(
-      tags$style(HTML(
-          ".dataTables_wrapper { overflow-x: scroll; }"
-          #".shiny-output-error { visibility: hidden; }",
-          #".shiny-output-error:before { visibility: hidden; }"
-        )
-      )
+      tags$link(rel = "stylesheet", type = "text/css", href = "styling.css") #Styling from external stylesheet
     ),
     sidebarMenu(id = "sidebarmenu",
         menuItem("Input Data", tabName = "inputData", icon = icon("download")),
@@ -35,8 +31,14 @@ dashboardPage(skin="red",
       HTML("<div class='tabs' style='width: 100em !important;'>"),
       tabBox(
         id="tabs",
-        tabPanel("Visualize",uiOutput("choose_column1"),plotOutput("boxplot")),
-        tabPanel("Model",plotOutput('kmeans', click="kmeans_click"))
+        tabPanel("Visualize",uiOutput("choose_column1"),
+          carouselPanel(
+            plotOutput("boxplot"),
+            plotOutput('kmeans', click="kmeans_click"),
+            auto.advance=TRUE
+          )
+        ),
+        tabPanel("Model","Model")
       ),
       HTML("</div>")
     ),
