@@ -7,18 +7,17 @@ carouselPanel <- function(..., auto.advance=FALSE){
     # Set up Javascript to call carousel when document is ready
     if( !auto.advance ){
       singleton(tags$head(tags$script("$(document).ready(function(){
-                                        $('.carousel').carousel({
-                                          interval: false
-                                      }));
-    });")))
+          $('.carousel').carousel({
+          interval: false
+          })
+      });")))
       }else{
         singleton(tags$head(tags$script("$(document).ready(function(){
-                                          $('.carousel').carousel({
-                                            interval: 5000,
-                                            pause: 'hover'
-                                          })
-
-                                        });")))
+          $('.carousel').carousel({
+          interval: 3000,
+          pause: 'hover'
+          })
+      });")))
       },
     
     #Set up carousel

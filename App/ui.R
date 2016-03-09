@@ -3,14 +3,16 @@ library(shinydashboard)
 library(shinyBS)
 library(DT)
 
-dashboardPage(
+source("carouselPanel.R",local=TRUE)
+dashboardPage(skin="red",
   dashboardHeader(title='Forecasting Analytics'),
   dashboardSidebar(
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "styling.css") #Styling from external stylesheet
+      tags$link(rel = "stylesheet", type = "text/css", href = "styling.css") #styling from external stylesheet
     ),
     sidebarMenu(id = "sidebarmenu",
         menuItem("Input Data", tabName = "inputData", icon = icon("download")),
+        menuItem("Visualization Filters", tabName = "visualFilters", icon = icon("bar-chart")),
         menuItem("Model Filters", tabName = "modelFilters", icon = icon("line-chart")),
         menuItem("Guide", tabName = "guide", icon = icon("book")),
         conditionalPanel("input.sidebarmenu === 'inputData'",
@@ -23,6 +25,10 @@ dashboardPage(
             uiOutput("choose_kmeansX"),
             uiOutput("choose_kmeansY"),
             numericInput('clusters', 'Cluster count', 3,min = 1, max = 9)
+        ),
+        conditionalPanel("input.sidebarmenu ==='visualFilters'",
+            uiOutput("choose_column1"),
+            uiOutput("choose_column2")
         )
     )
   ),
@@ -31,14 +37,15 @@ dashboardPage(
       HTML("<div class='tabs' style='width: 100em !important;'>"),
       tabBox(
         id="tabs",
-        tabPanel("Visualize",uiOutput("choose_column1"),
+        tabPanel("Visualize",
           carouselPanel(
             plotOutput("boxplot"),
-            plotOutput('kmeans', click="kmeans_click"),
-            auto.advance=TRUE
+            plotOutput("heatmap"),
+            plotOutput("scatterplot"),
+            auto.advance=FALSE #<<<<<<<<<<<<<<<<<<<<<<<<<<<<< WHAT SHOULD WE DO?? AUTO ADVANCE???
           )
         ),
-        tabPanel("Model","Model")
+        tabPanel("Model",plotOutput('kmeans', click="kmeans_click"))
       ),
       HTML("</div>")
     ),

@@ -33,16 +33,27 @@ shinyServer(function(input, output, session) {
   
   # BOXPLOTS
   output$choose_column1 <- renderUI({
-    selectInput("column1", "Choose column", names(tbl()))
+    selectInput("column1", "Choose Column(s)", names(tbl()), multiple=TRUE, selected=list(names(tbl())[[1]],names(tbl())[[2]]))
+  })
+  output$choose_column2 <- renderUI({
+    selectInput("column2", "Choose Grouping", names(tbl()))
   })
   output$boxplot<-renderPlot({
-    if (is.null(input$column1)){
-      b<-tbl()[1]
-    }
-    else {
-      b<-tbl()[input$column1]
-    }
+    b<-tbl()[input$column1]
     boxplot(b)
+  })
+  
+  output$heatmap<-renderPlot({
+    validate( #error handling
+      need(length(input$column1) == 2, " * Please select 2 columns")
+    )
+    mat<-data.matrix(tbl()[input$column1])
+    print (mat)
+    heatmap(mat)
+  })
+  
+  output$scatterplot<-renderPlot({
+    plot(tbl()[input$column1])
   })
   
   #################
@@ -60,7 +71,7 @@ shinyServer(function(input, output, session) {
   clusters <- reactive({kmeans(selectedData(), input$clusters)})
   output$kmeans <- renderPlot({
     validate( #error handling
-      need(!is.na(tbl()[input$xcol]) || !is.na(tbl()[input$ycol]), " * Non-Numeric Column-please reformat data or select a different column")
+      need(!is.na(tbl()[input$xcol]) && !is.na(tbl()[input$ycol]), " * Non-Numeric Column-please reformat data or select a different column")
     )
   
     par(mar = c(5.1, 4.1, 0, 1))
