@@ -1,13 +1,15 @@
 library(shiny)
 library(shinydashboard)
 library(shinyBS)
+library(ggplot2)
+theme_set(theme_bw())
 library(DT)
-
-source("carouselPanel.R",local=TRUE)
+   
+source("functions.R",local=TRUE)
 dashboardPage(skin="red",
-  dashboardHeader(title='Forecasting Analytics'),
-  dashboardSidebar(
-    tags$head(
+              dashboardHeader(title='Forecasting Analytics'),
+              dashboardSidebar(
+                tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "styling.css") #styling from external stylesheet
     ),
     sidebarMenu(id = "sidebarmenu",
@@ -22,35 +24,41 @@ dashboardPage(skin="red",
             radioButtons('quote', 'Quote',c(None='','Double Quote'='"','Single Quote'="'"),'Double Quote')
         ),
         conditionalPanel("input.sidebarmenu ==='modelFilters'",
-            uiOutput("choose_kmeansX"),
-            uiOutput("choose_kmeansY"),
+            uiOutput("cols2"),
             numericInput('clusters', 'Cluster count', 3,min = 1, max = 9)
         ),
         conditionalPanel("input.sidebarmenu ==='visualFilters'",
-            uiOutput("choose_column1"),
-            uiOutput("choose_column2")
+            uiOutput("cols1"),
+            uiOutput("groupcol"),
+            uiOutput("timecol")
         )
     )
   ),
   dashboardBody(
     fluidRow(
-      HTML("<div class='tabs' style='width: 100em !important;'>"),
+      HTML("<div class='tabs'>"),
       tabBox(
-        id="tabs",
+        id="tabs", width=12,
         tabPanel("Visualize",
           carouselPanel(
             plotOutput("boxplot"),
-            plotOutput("heatmap"),
+            plotOutput("densityplot"),
             plotOutput("scatterplot"),
             auto.advance=FALSE #<<<<<<<<<<<<<<<<<<<<<<<<<<<<< WHAT SHOULD WE DO?? AUTO ADVANCE???
           )
         ),
-        tabPanel("Model",plotOutput('kmeans', click="kmeans_click"))
+        tabPanel("Model",
+          carouselPanel(
+            plotOutput('model1'),
+            plotOutput('model2',dblclick = "plotdblclick",brush = brushOpts(id = "brush",resetOnNew = TRUE)),
+            auto.advance=FALSE #<<<<<<<<<<<<<<<<<<<<<<<<<<<<< WHAT SHOULD WE DO?? AUTO ADVANCE???
+          )
+        )
       ),
       HTML("</div>")
     ),
     fluidRow(
-      bsCollapsePanel("View Data",DT::dataTableOutput('mydata'))
+      bsCollapsePanel("View Data",verbatimTextOutput("summary"), DT::dataTableOutput('mydata'))
     )
   )
 )

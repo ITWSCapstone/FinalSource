@@ -2,8 +2,8 @@ name: ForecastingAnalytics
 account: capstonespicegirls
 server: shinyapps.io
 appId: 82653
-bundleId: 391517
+bundleId: 399282
 url: https://capstonespicegirls.shinyapps.io/ForecastingAnalytics/
-when: 1457547841.41522
+when: 1458488591.90115
 asMultiple: FALSE
 asStatic: FALSE

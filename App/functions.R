@@ -1,5 +1,4 @@
 #adapted from: https://github.com/dcurrier/carouselPanel/blob/master/carouselPanel.R
-
 carouselPanel <- function(..., auto.advance=FALSE){
   n = paste(strsplit(paste(strsplit(as.character(rnorm(1)), "[.]")[[1]], collapse=""), "-")[[1]], collapse="")
   contents = list(...)
