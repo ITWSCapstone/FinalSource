@@ -32,8 +32,8 @@ carouselPanel <- function(..., auto.advance=FALSE){
         a(class="left carousel-control",
           `data-slide`="prev",
           href=paste0("#carousel-", n),
-          style="background: transparent; color: #000",
-          HTML(paste0("<i class='fa fa-chevron-left'></i>")) ),
+          style="background: transparent; color: #000; left:-8px",
+          HTML(paste0("<i class='fa fa-chevron-left'></i>"))),
         
         a(class="right carousel-control",
           `data-slide`="next",
