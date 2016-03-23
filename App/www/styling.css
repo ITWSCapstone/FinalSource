@@ -1,7 +1,6 @@
 .dataTables_wrapper { overflow-x: scroll; }
-.shiny-output-error { visibility: hidden; }
+.shiny-output-error { visibility: hidden; } 
 .shiny-output-error:before { visibility: hidden; }
-
 .carousel-indicators li {
   background-color: #DDD;
   background-color: rgba(70,70,70,.25);

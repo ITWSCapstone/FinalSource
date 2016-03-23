@@ -22,7 +22,7 @@ shinyServer(function(input, output, session) {
     if (is.null(input$timecol))
       return (NULL)
     data=tbl()
-    colindex=grep(input$timecol, colnames(data)) #returns column index of column user selects
+    colindex=grep(input$timecol, names(data)) #returns column index of column user selects
     a1=as.numeric(as.character(data[,colindex]))
     curr=data.frame(a1)
     curr=curr[rowSums(is.na(curr)) != ncol(curr),]
@@ -32,10 +32,11 @@ shinyServer(function(input, output, session) {
   })
   TheETS<-reactive({
     #returns selcted series as ETS for dygraphs
-    if (is.null(input$timecol))
+    if (is.null(input$timecol)){
       return (NULL)
+    }
     data=tbl()
-    colindex=grep(input$timecol, colnames(data))
+    colindex=grep(input$timecol, names(data))
     
     #ACTUALS
     act=as.numeric((data[,colindex]))
@@ -47,7 +48,8 @@ shinyServer(function(input, output, session) {
     fit=data.frame(fit)
     fit=fit[rowSums(is.na(fit)) != ncol(fit),] #remove NAs
     
-    dates=as.character(data[,2]) #HARD CODED UGH
+    dateindex=grep("Period",names(data))
+    dates=as.character(data[,dateindex]) #HARD CODED UGH
     dates=as.Date((dates),"%B/%d/%Y") #Will need all dates to be formatted as such
     dates=head(dates, length(act))
     ret=xts(cbind(act,fit),order.by = dates)
@@ -78,7 +80,11 @@ shinyServer(function(input, output, session) {
     selectInput("cols1", "Choose Column(s)", names(tbl()), multiple=TRUE, selected=list(names(tbl())[[1]],names(tbl())[[2]]))
   })
   output$groupcol <- renderUI({
-    selectInput("groupcol", "Group By", names(tbl()),selected=list(names(tbl())[[5]]))
+    categorical <- !sapply(tbl(), is.numeric) #only group by categorical fields
+    selectizeInput(
+      'groupcol', 'Group By', choices = names(tbl()[categorical]),
+      multiple = TRUE, options = list(maxItems = 1)
+    )
   })
   output$timecol <- renderUI({
     selectizeInput(
@@ -114,10 +120,18 @@ shinyServer(function(input, output, session) {
   
   # SCATTERPLOT
   output$scatterplot<-renderPlot({
-    if(is.null(TheTS())) { plot(tbl()[input$cols1])}
+    if(is.null(TheTS())) { 
+      if(is.null(input$groupcol)){
+        plot(tbl()[input$cols1])  
+      }
+      else{
+        plot(tbl()[input$cols1],col=tbl()[[input$groupcol]]) 
+        legend ("topleft", legend = levels(tbl()[[input$groupcol]]), col = c(1:3), pch = 16)
+      }
+    }
     else{
       TS=TheTS()
-      plot(TS, main=paste(input$vars, sep= " "),xlab="Time", ylab=input$timecol,col="purple", type =input$dataplotType)
+      plot(TS, main=paste(input$timecol, sep= " "),xlab="Time", ylab=input$timecol,col="purple")
     }
   })
 
@@ -144,9 +158,9 @@ shinyServer(function(input, output, session) {
   
   # LINEAR REGRESSION
   output$model2<-renderPlot({
-    #validate(
-      #need(length(input$cols2)==2, "Please select two columns")
-    #)
+    validate(
+      need(length(input$cols2)==2, "Please select two columns")
+    )
     ggplot(tbl(), aes(x=tbl()[input$cols2[1]], y=tbl()[input$cols2[2]])) + 
       geom_point()+
       geom_smooth(method=lm)+
