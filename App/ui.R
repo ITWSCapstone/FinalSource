@@ -6,12 +6,16 @@ library(ggplot2)
 library(reshape2)
 library(dygraphs)
 library(xts)
+library(tree)
+library(knitr)
 theme_set(theme_bw())
 library(DT)
    
 source("functions.R",local=TRUE)
+dbHeader<-dashboardHeader(titleWidth = 350)
+dbHeader$children[[2]]$children <-  tags$div(tags$img(src='jjlogo.png',height='60',width='310'))
 dashboardPage(skin="red", 
-  dashboardHeader(title='Forecasting Analytics'),
+  dbHeader,
   dashboardSidebar(
       tags$head(
         tags$link(rel = "stylesheet", type = "text/css", href = "styling.css") #styling from external stylesheet
@@ -28,11 +32,12 @@ dashboardPage(skin="red",
             radioButtons('quote', 'Quote',c(None='','Double Quote'='"','Single Quote'="'"),'Double Quote')
         ),
         conditionalPanel("input.sidebarmenu ==='modelFilters'",
-            uiOutput("cols2"),
+            uiOutput("dep"),
+            uiOutput("indep"),
             numericInput('clusters', 'Cluster count', 3,min = 1, max = 9)
         ),
         conditionalPanel("input.sidebarmenu ==='visualFilters'",
-            uiOutput("cols1"),
+            uiOutput("vis"),
             uiOutput("groupcol"),
             uiOutput("timecol")
         )
@@ -73,11 +78,17 @@ dashboardPage(skin="red",
                 )
               )
             ),
-            box(id="model3_box",title="ARIMA",width=12,solidHeader = TRUE,
-                plotOutput('model3',click="model3click"),
+            box(id="model3_box",title="Decision Tree",width=12,solidHeader = TRUE,
+                  plotOutput('model3',click="model3click"),
+                  hidden(
+                    verbatimTextOutput("model3_info")
+                  )
+            ),
+            box(id="model4_box",title="ARIMA",width=12,solidHeader = TRUE,
+                plotOutput('model4',click="model4click"),
                 hidden(
-                  verbatimTextOutput("model3_info"),
-                  plotOutput("model3_resid")
+                  verbatimTextOutput("model4_info"),
+                  plotOutput("model4_resid")
                 )
             ),
             auto.advance=FALSE #<<<<<<<<<<<<<<<<<<<<<<<<<<<<< WHAT SHOULD WE DO?? AUTO ADVANCE???
@@ -87,6 +98,7 @@ dashboardPage(skin="red",
       HTML("</div>")
     ),
     fluidRow(
+      downloadButton('downloadPlots'),
       bsCollapsePanel("View Data",bsCollapsePanel("Summary",verbatimTextOutput("summary")), DT::dataTableOutput('mydata'))
     )
   )
