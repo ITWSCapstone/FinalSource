@@ -1,6 +1,5 @@
 palette(c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3",
           "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999"))
-
 options(shiny.maxRequestSize = 15*1024^2) #server file input limit (15MB)
 shinyServer(function(input, output, session) {
   source("functions.R")
@@ -86,12 +85,6 @@ shinyServer(function(input, output, session) {
       multiple = TRUE, options = list(maxItems = 1)
     )
   })
-  output$timecol <- renderUI({
-    selectizeInput(
-      'timecol', 'Choose Time Series', choices = names(tbl()),
-      multiple = TRUE, options = list(maxItems = 1)
-    )
-  })
   
   bplot = function() {
     b<-tbl()[input$vis]
@@ -150,15 +143,15 @@ shinyServer(function(input, output, session) {
   #################
   
   # K-MEANS CLUSTERING
-  output$indep <- renderUI({
+  output$clust_indep <- renderUI({
     numeric <- sapply(tbl(), is.numeric)
-    selectInput("indep", "Independent Variables", names(tbl()[numeric]), multiple=TRUE, selected=list(names(tbl()[numeric])[[2]],names(tbl()[numeric])[[3]]))
+    selectInput("clust_indep", "Independent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[2]]))
   })
-  output$dep <- renderUI({
+  output$clust_dep <- renderUI({
     numeric <- sapply(tbl(), is.numeric)
-    selectInput("dep", "Dependent Variable", names(tbl()), multiple=FALSE, selected=list(names(tbl())[[1]]))
+    selectInput("clust_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
   })
-  selectedData <- reactive({tbl()[, c(input$dep, input$indep[1])]})
+  selectedData <- reactive({tbl()[, c(input$clust_dep, input$clust_indep)]})
   clusters <- reactive({kmeans(selectedData(), input$clusters)})
   output$model1 <- renderPlot({
     par(mar = c(5.1, 4.1, 0, 1))
@@ -168,19 +161,27 @@ shinyServer(function(input, output, session) {
 
   
   # LINEAR REGRESSION
+  output$lm_indep <- renderUI({
+    numeric <- sapply(tbl(), is.numeric)
+    selectInput("lm_indep", "Independent Variable(s)", names(tbl()[numeric]), multiple=TRUE, selected=list(names(tbl()[numeric])[[2]]))
+  })
+  output$lm_dep <- renderUI({
+    numeric <- sapply(tbl(), is.numeric)
+    selectInput("lm_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
+  })
   output$model2<-renderPlot({
-    ggplot(tbl(), aes(x=tbl()[input$indep[1]], y=tbl()[input$dep])) + 
+    ggplot(tbl(), aes(x=tbl()[input$lm_indep[1]], y=tbl()[input$lm_dep])) + 
       geom_point()+
       geom_smooth(method=lm)+
-      labs(x = input$indep[1],y = input$dep)
+      labs(x = input$lm_indep[1],y = input$lm_dep)
   })
   observeEvent(input$model2click, { #Display test results on click
     output$model2_info<-renderPrint({
-      mod<-lm(as.formula(paste(input$dep," ~ ",paste(input$indep[1],collapse="+"))),data=tbl())
+      mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep[1],collapse="+"))),data=tbl())
       print(summary(mod))
     })
     output$model2_resid<-renderPlot({
-      mod<-lm(as.formula(paste(input$dep," ~ ",paste(input$indep[1],collapse="+"))),data=tbl())
+      mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep[1],collapse="+"))),data=tbl())
       plot(resid(mod))
       abline(0,0, col="red")
     })
@@ -190,13 +191,35 @@ shinyServer(function(input, output, session) {
   onclick("model2_i", show("model2"))
   
   # Decision Tree
+  output$tree_indep <- renderUI({
+    numeric <- sapply(tbl(), is.numeric)
+    selectInput("tree_indep", "Independent Variable(s)", names(tbl()[numeric]), multiple=TRUE, selected=list(names(tbl()[numeric])[[2]]))
+  })
+  output$tree_dep <- renderUI({
+    numeric <- !sapply(tbl(), is.numeric)
+    selectInput("tree_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
+  })
   output$model3<-renderPlot({
-    stree = tree(as.formula(paste(input$dep," ~ ",paste(input$indep,collapse="+"))), data = tbl())
+    stree = tree(as.formula(paste(input$tree_dep," ~ ",paste(input$tree_indep,collapse="+"))), data = tbl())
     plot(stree)
     text(stree)
   }) 
   
   # ARIMA
+  output$arima_indep <- renderUI({
+    numeric <- sapply(tbl(), is.numeric)
+    selectInput("arima_indep", "Independent Variable(s)", names(tbl()[numeric]), multiple=TRUE, selected=list(names(tbl()[numeric])[[2]]))
+  })
+  output$arima_dep <- renderUI({
+    numeric <- !sapply(tbl(), is.numeric)
+    selectInput("arima_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
+  })
+  output$timecol <- renderUI({
+    selectizeInput(
+      'timecol', 'Choose Time Series', choices = names(tbl()),
+      multiple = TRUE, options = list(maxItems = 1)
+    )
+  })
   output$model4<-renderPlot({
     if(is.null(TheETS())) { return(NULL)}
     TS=TheETS()
