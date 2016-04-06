@@ -1,6 +1,5 @@
 palette(c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3",
           "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999"))
-
 options(shiny.maxRequestSize = 15*1024^2) #server file input limit (15MB)
 shinyServer(function(input, output, session) {
   source("functions.R")
@@ -74,10 +73,10 @@ shinyServer(function(input, output, session) {
   # VISUALIZATION #
   #################
   rplot <- reactiveValues(x = NULL, y = NULL)
-  
   # BOXPLOTS
-  output$cols1 <- renderUI({
-    selectInput("cols1", "Choose Column(s)", names(tbl()), multiple=TRUE, selected=list(names(tbl())[[1]],names(tbl())[[2]]))
+  output$vis <- renderUI({
+    numeric <- sapply(tbl(), is.numeric)
+    selectInput("vis", "Choose Column(s)", names(tbl()[numeric]), multiple=TRUE, selected=list(names(tbl()[numeric])[[1]],names(tbl()[numeric])[[2]]))
   })
   output$groupcol <- renderUI({
     categorical <- !sapply(tbl(), is.numeric) #only group by categorical fields
@@ -86,25 +85,26 @@ shinyServer(function(input, output, session) {
       multiple = TRUE, options = list(maxItems = 1)
     )
   })
-  output$timecol <- renderUI({
-    selectizeInput(
-      'timecol', 'Choose Time Series', choices = names(tbl()),
-      multiple = TRUE, options = list(maxItems = 1)
-    )
-  })
-  output$boxplot<-renderPlot({
-    b<-tbl()[input$cols1]
+  
+  bplot = function() {
+    b<-tbl()[input$vis]
     boxplot(b)
+  }
+  output$boxplot<-renderPlot({
+    print(bplot())
   })
   
   # DENSITY GRAPH
-  output$densityplot<-renderPlot({
-    mdat<-melt(tbl()[input$cols1])
+  dplot = function() {
+    mdat<-melt(tbl()[input$vis])
     ggplot(mdat, aes(value)) +
       geom_histogram(aes(y=..density..), binwidth=5, colour='black', fill='skyblue') + 
       geom_density() + 
       facet_wrap(~variable, scales="free")+
       coord_cartesian(xlim = rplot$x, ylim = rplot$y)
+  }
+  output$densityplot<-renderPlot({
+    print(dplot())
   })
   observeEvent(input$plotdblclick, { #Dynamic range (drag and double click to resize graph)
     brush <- input$brush
@@ -119,13 +119,13 @@ shinyServer(function(input, output, session) {
   })
   
   # SCATTERPLOT
-  output$scatterplot<-renderPlot({
+  splot = function() {
     if(is.null(TheTS())) { 
       if(is.null(input$groupcol)){
-        plot(tbl()[input$cols1])  
+        plot(tbl()[input$vis])  
       }
       else{
-        plot(tbl()[input$cols1],col=tbl()[[input$groupcol]]) 
+        plot(tbl()[input$vis],col=tbl()[[input$groupcol]]) 
         legend ("topleft", legend = levels(tbl()[[input$groupcol]]), col = c(1:3), pch = 16)
       }
     }
@@ -133,23 +133,27 @@ shinyServer(function(input, output, session) {
       TS=TheTS()
       plot(TS, main=paste(input$timecol, sep= " "),xlab="Time", ylab=input$timecol,col="purple")
     }
+  }
+  output$scatterplot<-renderPlot({
+    print(splot())
   })
-
   
   #################
   #    MODELING   #
   #################
   
   # K-MEANS CLUSTERING
-  output$cols2 <- renderUI({
-    selectInput("cols2", "Choose Column(s)", names(tbl()), multiple=TRUE, selected=list(names(tbl())[[1]],names(tbl())[[2]]))
+  output$clust_indep <- renderUI({
+    numeric <- sapply(tbl(), is.numeric)
+    selectInput("clust_indep", "Independent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[2]]))
   })
-  selectedData <- reactive({tbl()[, c(input$cols2[1], input$cols2[2])]})
+  output$clust_dep <- renderUI({
+    numeric <- sapply(tbl(), is.numeric)
+    selectInput("clust_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
+  })
+  selectedData <- reactive({tbl()[, c(input$clust_dep, input$clust_indep)]})
   clusters <- reactive({kmeans(selectedData(), input$clusters)})
   output$model1 <- renderPlot({
-    validate( #error handling
-      need(!is.na(tbl()[input$cols2[1]]) && !is.na(tbl()[input$cols2[2]]), " * Non-Numeric Column-please reformat data or select a different column")
-    )
     par(mar = c(5.1, 4.1, 0, 1))
     plot(selectedData(), col = clusters()$cluster, pch = 20, cex = 3)
     points(clusters()$centers, pch = 4, cex = 4, lwd = 4)
@@ -157,22 +161,27 @@ shinyServer(function(input, output, session) {
 
   
   # LINEAR REGRESSION
+  output$lm_indep <- renderUI({
+    numeric <- sapply(tbl(), is.numeric)
+    selectInput("lm_indep", "Independent Variable(s)", names(tbl()[numeric]), multiple=TRUE, selected=list(names(tbl()[numeric])[[2]]))
+  })
+  output$lm_dep <- renderUI({
+    numeric <- sapply(tbl(), is.numeric)
+    selectInput("lm_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
+  })
   output$model2<-renderPlot({
-    validate(
-      need(length(input$cols2)==2, "Please select two columns")
-    )
-    ggplot(tbl(), aes(x=tbl()[input$cols2[1]], y=tbl()[input$cols2[2]])) + 
+    ggplot(tbl(), aes(x=tbl()[input$lm_indep[1]], y=tbl()[input$lm_dep])) + 
       geom_point()+
       geom_smooth(method=lm)+
-      labs(x = input$cols2[1],y = input$cols2[2])
+      labs(x = input$lm_indep[1],y = input$lm_dep)
   })
   observeEvent(input$model2click, { #Display test results on click
     output$model2_info<-renderPrint({
-      mod<-lm(as.formula(paste(input$cols2[1]," ~ ",paste(input$cols2[2],collapse="+"))),data=tbl())
+      mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep[1],collapse="+"))),data=tbl())
       print(summary(mod))
     })
     output$model2_resid<-renderPlot({
-      mod<-lm(as.formula(paste(input$cols2[1]," ~ ",paste(input$cols2[2],collapse="+"))),data=tbl())
+      mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep[1],collapse="+"))),data=tbl())
       plot(resid(mod))
       abline(0,0, col="red")
     })
@@ -181,7 +190,37 @@ shinyServer(function(input, output, session) {
   })
   onclick("model2_i", show("model2"))
   
+  # Decision Tree
+  output$tree_indep <- renderUI({
+    numeric <- sapply(tbl(), is.numeric)
+    selectInput("tree_indep", "Independent Variable(s)", names(tbl()[numeric]), multiple=TRUE, selected=list(names(tbl()[numeric])[[2]]))
+  })
+  output$tree_dep <- renderUI({
+    numeric <- !sapply(tbl(), is.numeric)
+    selectInput("tree_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
+  })
   output$model3<-renderPlot({
+    stree = tree(as.formula(paste(input$tree_dep," ~ ",paste(input$tree_indep,collapse="+"))), data = tbl())
+    plot(stree)
+    text(stree)
+  }) 
+  
+  # ARIMA
+  output$arima_indep <- renderUI({
+    numeric <- sapply(tbl(), is.numeric)
+    selectInput("arima_indep", "Independent Variable(s)", names(tbl()[numeric]), multiple=TRUE, selected=list(names(tbl()[numeric])[[2]]))
+  })
+  output$arima_dep <- renderUI({
+    numeric <- !sapply(tbl(), is.numeric)
+    selectInput("arima_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
+  })
+  output$timecol <- renderUI({
+    selectizeInput(
+      'timecol', 'Choose Time Series', choices = names(tbl()),
+      multiple = TRUE, options = list(maxItems = 1)
+    )
+  })
+  output$model4<-renderPlot({
     if(is.null(TheETS())) { return(NULL)}
     TS=TheETS()
     names(TS)=c("Actuals", "Fitted")
@@ -189,4 +228,14 @@ shinyServer(function(input, output, session) {
   })
   
   
-})
+  #########################################
+  #            SAVE PLOT(S)               #
+  #########################################
+  output$downloadPlots <- downloadHandler( filename = function() { "AnalyticsReport.pdf"},content = function(file) {
+    pdf(file) 
+    print( bplot() ) 
+    print( dplot() ) 
+    print( splot() ) 
+    dev.off()})
+  
+}) 

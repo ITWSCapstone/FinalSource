@@ -22,3 +22,13 @@
   border: none;
   top: -30px;
 }
+img{
+  padding-top:10px;
+  padding-bottom:10px;
+}
+
+@media screen and (min-width: 1024px){
+  .sidebar-toggle {
+    display: none;
+  }
+}

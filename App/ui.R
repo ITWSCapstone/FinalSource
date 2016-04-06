@@ -6,12 +6,16 @@ library(ggplot2)
 library(reshape2)
 library(dygraphs)
 library(xts)
-theme_set(theme_bw())
+library(tree)
+library(knitr)
 library(DT)
+theme_set(theme_bw())
    
 source("functions.R",local=TRUE)
+dbHeader<-dashboardHeader(titleWidth = 350)
+dbHeader$children[[2]]$children <-  tags$div(tags$img(src='jjlogo.png',height='60',width='310'))
 dashboardPage(skin="red", 
-  dashboardHeader(title='Forecasting Analytics'),
+  dbHeader,
   dashboardSidebar(
       tags$head(
         tags$link(rel = "stylesheet", type = "text/css", href = "styling.css") #styling from external stylesheet
@@ -19,7 +23,6 @@ dashboardPage(skin="red",
       sidebarMenu(id = "sidebarmenu",
         menuItem("Input Data", tabName = "inputData", icon = icon("download")),
         menuItem("Visualization Filters", tabName = "visualFilters", icon = icon("bar-chart")),
-        menuItem("Model Filters", tabName = "modelFilters", icon = icon("line-chart")),
         menuItem("Guide", tabName = "guide", icon = icon("book")),
         conditionalPanel("input.sidebarmenu === 'inputData'",
             fileInput('file1', 'Choose CSV File',accept=c('text/csv', 'text/comma-separated-values,text/plain', '.csv')),
@@ -27,14 +30,9 @@ dashboardPage(skin="red",
             radioButtons('sep', 'Separator',c(Comma=',',Semicolon=';',Tab='\t'),'Comma'),
             radioButtons('quote', 'Quote',c(None='','Double Quote'='"','Single Quote'="'"),'Double Quote')
         ),
-        conditionalPanel("input.sidebarmenu ==='modelFilters'",
-            uiOutput("cols2"),
-            numericInput('clusters', 'Cluster count', 3,min = 1, max = 9)
-        ),
         conditionalPanel("input.sidebarmenu ==='visualFilters'",
-            uiOutput("cols1"),
-            uiOutput("groupcol"),
-            uiOutput("timecol")
+            uiOutput("vis"),
+            uiOutput("groupcol")
         )
     )
   ),
@@ -55,12 +53,17 @@ dashboardPage(skin="red",
         tabPanel("Model",
           carouselPanel(
             box(id="model1_box",title="K Means Clustering",width=12,solidHeader = TRUE,
+              uiOutput("clust_dep"),
+              uiOutput("clust_indep"),
+              numericInput('clusters', 'Cluster count', 3,min = 1, max = 9),
               plotOutput('model1',click="model1click"),
               hidden(
                 verbatimTextOutput("model1_info")
               )
             ),
             box(id="model2_box",title="Linear Regression",width=12,solidHeader = TRUE,
+              uiOutput("lm_dep"),
+              uiOutput("lm_indep"),
               plotOutput('model2',click="model2click"),
               hidden(
                 div(id="model2_i",
@@ -73,11 +76,22 @@ dashboardPage(skin="red",
                 )
               )
             ),
-            box(id="model3_box",title="ARIMA",width=12,solidHeader = TRUE,
+            box(id="model3_box",title="Decision Tree",width=12,solidHeader = TRUE,
+                uiOutput("tree_dep"),
+                uiOutput("tree_indep"),
                 plotOutput('model3',click="model3click"),
                 hidden(
-                  verbatimTextOutput("model3_info"),
-                  plotOutput("model3_resid")
+                  verbatimTextOutput("model3_info")
+                )
+            ),
+            box(id="model4_box",title="ARIMA",width=12,solidHeader = TRUE,
+                uiOutput("arima_dep"),
+                uiOutput("arima_indep"),
+                uiOutput("timecol"),
+                plotOutput('model4',click="model4click"),
+                hidden(
+                  verbatimTextOutput("model4_info"),
+                  plotOutput("model4_resid")
                 )
             ),
             auto.advance=FALSE #<<<<<<<<<<<<<<<<<<<<<<<<<<<<< WHAT SHOULD WE DO?? AUTO ADVANCE???
@@ -87,6 +101,7 @@ dashboardPage(skin="red",
       HTML("</div>")
     ),
     fluidRow(
+      downloadButton('downloadPlots'),
       bsCollapsePanel("View Data",bsCollapsePanel("Summary",verbatimTextOutput("summary")), DT::dataTableOutput('mydata'))
     )
   )
