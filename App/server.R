@@ -64,9 +64,7 @@ shinyServer(function(input, output, session) {
     )
   ))
   
-  output$summary<-renderPrint({
-    summary(tbl())
-  })
+  output$summary<-renderPrint({summary(tbl())})
   
 
   #################
@@ -90,9 +88,7 @@ shinyServer(function(input, output, session) {
     b<-tbl()[input$vis]
     boxplot(b)
   }
-  output$boxplot<-renderPlot({
-    print(bplot())
-  })
+  output$boxplot<-renderPlot({print(bplot())})
   
   # DENSITY GRAPH
   dplot = function() {
@@ -103,9 +99,7 @@ shinyServer(function(input, output, session) {
       facet_wrap(~variable, scales="free")+
       coord_cartesian(xlim = rplot$x, ylim = rplot$y)
   }
-  output$densityplot<-renderPlot({
-    print(dplot())
-  })
+  output$densityplot<-renderPlot({print(dplot())})
   observeEvent(input$plotdblclick, { #Dynamic range (drag and double click to resize graph)
     brush <- input$brush
     if (!is.null(brush)) {
@@ -134,9 +128,7 @@ shinyServer(function(input, output, session) {
       plot(TS, main=paste(input$timecol, sep= " "),xlab="Time", ylab=input$timecol,col="purple")
     }
   }
-  output$scatterplot<-renderPlot({
-    print(splot())
-  })
+  output$scatterplot<-renderPlot({print(splot())})
   
   #################
   #    MODELING   #
@@ -153,57 +145,56 @@ shinyServer(function(input, output, session) {
   })
   selectedData <- reactive({tbl()[, c(input$clust_dep, input$clust_indep)]})
   clusters <- reactive({kmeans(selectedData(), input$clusters)})
-  output$model1 <- renderPlot({
+  cplot=function(){
     par(mar = c(5.1, 4.1, 0, 1))
     plot(selectedData(), col = clusters()$cluster, pch = 20, cex = 3)
     points(clusters()$centers, pch = 4, cex = 4, lwd = 4)
+  }
+  output$model1<-renderPlot({print(cplot())})
+  output$model1_info<-renderTable({
+    table(clusters()$cluster, input$clust_dep)
   })
-
+  shinyjs::onclick("model1",toggle("model1_i", anim=TRUE))
+  shinyjs::onclick("model1_i",toggle("model1", anim=TRUE))
   
   # LINEAR REGRESSION
   output$lm_indep <- renderUI({
     numeric <- sapply(tbl(), is.numeric)
-    selectInput("lm_indep", "Independent Variable(s)", names(tbl()[numeric]), multiple=TRUE, selected=list(names(tbl()[numeric])[[2]]))
+    selectInput("lm_indep", "Independent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[2]]))
   })
   output$lm_dep <- renderUI({
     numeric <- sapply(tbl(), is.numeric)
     selectInput("lm_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
   })
   output$model2<-renderPlot({
-    ggplot(tbl(), aes(x=tbl()[input$lm_indep[1]], y=tbl()[input$lm_dep])) + 
+    ggplot(tbl(), aes(x=tbl()[input$lm_indep], y=tbl()[input$lm_dep])) + 
       geom_point()+
       geom_smooth(method=lm)+
-      labs(x = input$lm_indep[1],y = input$lm_dep)
+      labs(x = input$lm_indep,y = input$lm_dep)
   })
-  observeEvent(input$model2click, { #Display test results on click
-    output$model2_info<-renderPrint({
-      mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep[1],collapse="+"))),data=tbl())
-      print(summary(mod))
-    })
-    output$model2_resid<-renderPlot({
-      mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep[1],collapse="+"))),data=tbl())
-      plot(resid(mod))
-      abline(0,0, col="red")
-    })
-    show("model2_i", anim=TRUE)
-    hide("model2", anim=TRUE)
+  output$model2_info<-renderPrint({
+    mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep,collapse="+"))),data=tbl())
+    print(summary(mod))
   })
-  onclick("model2_i", show("model2"))
+  output$model2_resid<-renderPlot({
+    mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep,collapse="+"))),data=tbl())
+    plot(resid(mod))
+    abline(0,0, col="red")
+  })
+  shinyjs::onclick("model2",toggle("model2_i", anim=TRUE))
+  shinyjs::onclick("model2_i",toggle("model2", anim=TRUE))
   
   # Decision Tree
   output$tree_indep <- renderUI({
-    numeric <- sapply(tbl(), is.numeric)
-    selectInput("tree_indep", "Independent Variable(s)", names(tbl()[numeric]), multiple=TRUE, selected=list(names(tbl()[numeric])[[2]]))
+    selectInput("tree_indep", "Independent Variable(s)", names(tbl()[ , names(tbl()) != input$tree_dep]), multiple=TRUE, selected=list(names(tbl()[ , names(tbl()) != input$tree_dep])[[2]]))
   })
   output$tree_dep <- renderUI({
-    numeric <- !sapply(tbl(), is.numeric)
-    selectInput("tree_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
+    selectInput("tree_dep", "Dependent Variable", names(tbl()), multiple=FALSE, selected=list(names(tbl())[[1]]))
   })
   output$model3<-renderPlot({
-    stree = tree(as.formula(paste(input$tree_dep," ~ ",paste(input$tree_indep,collapse="+"))), data = tbl())
+    stree = ctree(as.formula(paste(input$tree_dep," ~ ",paste(input$tree_indep,collapse="+"))), data = tbl())
     plot(stree)
-    text(stree)
-  }) 
+  })
   
   # ARIMA
   output$arima_indep <- renderUI({
@@ -231,11 +222,16 @@ shinyServer(function(input, output, session) {
   #########################################
   #            SAVE PLOT(S)               #
   #########################################
-  output$downloadPlots <- downloadHandler( filename = function() { "AnalyticsReport.pdf"},content = function(file) {
+  output$downloadPlots <- downloadHandler( filename = function() {paste(format(Sys.Date, "%d/%b/%Y"),"-Report.pdf")},content = function(file) {
     pdf(file) 
-    print( bplot() ) 
-    print( dplot() ) 
-    print( splot() ) 
+    for (i in 1:length(input$plots)){
+      if(input$plots[i]=="Boxplot")
+        print (bplot())
+      if(input$plots[i]=="Density Plot")
+        print (dplot())
+      if(input$plots[i]=="Scatter Plot")
+        print(splot())
+    }
     dev.off()})
   
 }) 

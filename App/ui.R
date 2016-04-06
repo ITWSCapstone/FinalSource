@@ -6,7 +6,7 @@ library(ggplot2)
 library(reshape2)
 library(dygraphs)
 library(xts)
-library(tree)
+library(rpart)
 library(knitr)
 library(DT)
 theme_set(theme_bw())
@@ -53,17 +53,17 @@ dashboardPage(skin="red",
         tabPanel("Model",
           carouselPanel(
             box(id="model1_box",title="K Means Clustering",width=12,solidHeader = TRUE,
-              uiOutput("clust_dep"),
-              uiOutput("clust_indep"),
-              numericInput('clusters', 'Cluster count', 3,min = 1, max = 9),
+              div(style="display:inline-block; padding-right:8px;",uiOutput("clust_dep")),
+              div(style="display:inline-block; padding-right:8px;",uiOutput("clust_indep")),
+              div(style="display:inline-block; padding-right:8px;",numericInput('clusters', 'Cluster count', 3,min = 1, max = 9)),
               plotOutput('model1',click="model1click"),
               hidden(
-                verbatimTextOutput("model1_info")
+                tableOutput("model1_info")
               )
             ),
-            box(id="model2_box",title="Linear Regression",width=12,solidHeader = TRUE,
-              uiOutput("lm_dep"),
-              uiOutput("lm_indep"),
+            box(id="model2_box",title="Bivariate Linear Regression",width=12,solidHeader = TRUE,
+              div(style="display:inline-block; padding-right:8px;",uiOutput("lm_dep")),
+              div(style="display:inline-block; padding-right:8px;",uiOutput("lm_indep")),
               plotOutput('model2',click="model2click"),
               hidden(
                 div(id="model2_i",
@@ -77,21 +77,17 @@ dashboardPage(skin="red",
               )
             ),
             box(id="model3_box",title="Decision Tree",width=12,solidHeader = TRUE,
-                uiOutput("tree_dep"),
-                uiOutput("tree_indep"),
-                plotOutput('model3',click="model3click"),
-                hidden(
-                  verbatimTextOutput("model3_info")
-                )
+                div(style="display:inline-block; padding-right:8px;",uiOutput("tree_dep")),
+                div(style="display:inline-block; padding-right:8px;",uiOutput("tree_indep")),
+                plotOutput('model3',click="model3click")
             ),
             box(id="model4_box",title="ARIMA",width=12,solidHeader = TRUE,
-                uiOutput("arima_dep"),
-                uiOutput("arima_indep"),
-                uiOutput("timecol"),
+                div(style="display:inline-block; padding-right:8px;",uiOutput("arima_dep")),
+                div(style="display:inline-block; padding-right:8px;",uiOutput("arima_indep")),
+                div(style="display:inline-block; padding-right:8px;",uiOutput("timecol")),
                 plotOutput('model4',click="model4click"),
                 hidden(
-                  verbatimTextOutput("model4_info"),
-                  plotOutput("model4_resid")
+                  verbatimTextOutput("model4_info")
                 )
             ),
             auto.advance=FALSE #<<<<<<<<<<<<<<<<<<<<<<<<<<<<< WHAT SHOULD WE DO?? AUTO ADVANCE???
@@ -100,9 +96,8 @@ dashboardPage(skin="red",
       ),
       HTML("</div>")
     ),
-    fluidRow(
-      downloadButton('downloadPlots'),
-      bsCollapsePanel("View Data",bsCollapsePanel("Summary",verbatimTextOutput("summary")), DT::dataTableOutput('mydata'))
-    )
+    div(style="display:inline-block",selectInput("plots", "Choose Plot(s)", choices=list("Boxplot","Density Plot","Scatter Plot","K-Means","Linear Model","Decision Tree","ARIMA"), multiple=TRUE)),
+    div(style="display:inline-block;",downloadButton('downloadPlots')),
+    bsCollapsePanel("View Data",bsCollapsePanel("Summary",verbatimTextOutput("summary")), DT::dataTableOutput('mydata'))
   )
 )

@@ -32,3 +32,6 @@ img{
     display: none;
   }
 }
+#downloadPlots{
+  margin-top:-5px;
+}
