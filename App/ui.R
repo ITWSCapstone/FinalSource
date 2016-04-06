@@ -23,7 +23,6 @@ dashboardPage(skin="red",
       sidebarMenu(id = "sidebarmenu",
         menuItem("Input Data", tabName = "inputData", icon = icon("download")),
         menuItem("Visualization Filters", tabName = "visualFilters", icon = icon("bar-chart")),
-        menuItem("Guide", tabName = "guide", icon = icon("book")),
         conditionalPanel("input.sidebarmenu === 'inputData'",
             fileInput('file1', 'Choose CSV File',accept=c('text/csv', 'text/comma-separated-values,text/plain', '.csv')),
             checkboxInput('header', 'Header', TRUE),
@@ -33,11 +32,51 @@ dashboardPage(skin="red",
         conditionalPanel("input.sidebarmenu ==='visualFilters'",
             uiOutput("vis"),
             uiOutput("groupcol")
-        )
+        ),
+        
+        actionButton("aboutLink", "About Us", icon=icon("user")),
+        actionButton("guideLink", "Guide", icon=icon("book"))
+        ######HTML("<div class='aboutLink'>About Us</div>")
     )
   ),
   dashboardBody(
     useShinyjs(),
+    bsModal("aboutPage", "About Us", "aboutLink", size = "large", ######POP UP FOR ABOUT PAGE
+            
+            tags$head(
+              tags$style(HTML("
+                              .modal{
+                              
+                              }
+                              .modal-body {
+                              
+                              }
+                              "))
+              ),
+            
+            HTML("<h1>About Us</h1>")
+            
+            
+            
+            ),
+    bsModal("guidePage", "Guide", "guideLink", size = "large", ######POP UP FOR GUIDE PAGE
+            
+            tags$head(
+              tags$style(HTML("
+                              .modal{
+                              
+                              }
+                              .modal-body {
+                              
+                              }
+                              "))
+              ),
+            
+            
+            h1("Guide")
+            
+            
+            ),
     fluidRow(
       HTML("<div class='tabs'>"),
       tabBox(
