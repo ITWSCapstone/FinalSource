@@ -35,3 +35,8 @@ img{
 #downloadPlots{
   margin-top:-5px;
 }
+#buttons{
+  float:right;
+  margin-top:8px;
+  margin-right:5px;
+}

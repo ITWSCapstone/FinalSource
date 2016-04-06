@@ -13,7 +13,8 @@ theme_set(theme_bw())
    
 source("functions.R",local=TRUE)
 dbHeader<-dashboardHeader(titleWidth = 350)
-dbHeader$children[[2]]$children <-  tags$div(tags$img(src='jjlogo.png',height='60',width='310'))
+dbHeader$children[[2]]$children <- tags$div(tags$img(src='jjlogo.png',height='60',width='310'))
+dbHeader$children[[3]]$children <- tags$div(id="buttons",actionButton("aboutLink", "About Us", icon=icon("user")), actionButton("guideLink", "Guide", icon=icon("book")))
 dashboardPage(skin="red", 
   dbHeader,
   dashboardSidebar(
@@ -22,61 +23,27 @@ dashboardPage(skin="red",
       ),
       sidebarMenu(id = "sidebarmenu",
         menuItem("Input Data", tabName = "inputData", icon = icon("download")),
-        menuItem("Visualization Filters", tabName = "visualFilters", icon = icon("bar-chart")),
-        conditionalPanel("input.sidebarmenu === 'inputData'",
+        conditionalPanel("input.sidebarmenu === 'inputData'", id="cpanel1",
             fileInput('file1', 'Choose CSV File',accept=c('text/csv', 'text/comma-separated-values,text/plain', '.csv')),
             checkboxInput('header', 'Header', TRUE),
             radioButtons('sep', 'Separator',c(Comma=',',Semicolon=';',Tab='\t'),'Comma'),
             radioButtons('quote', 'Quote',c(None='','Double Quote'='"','Single Quote'="'"),'Double Quote')
         ),
+        menuItem("Visualization Filters", tabName = "visualFilters", icon = icon("bar-chart")),
         conditionalPanel("input.sidebarmenu ==='visualFilters'",
             uiOutput("vis"),
             uiOutput("groupcol")
-        ),
-        
-        actionButton("aboutLink", "About Us", icon=icon("user")),
-        actionButton("guideLink", "Guide", icon=icon("book"))
-        ######HTML("<div class='aboutLink'>About Us</div>")
+        )
     )
   ),
   dashboardBody(
     useShinyjs(),
     bsModal("aboutPage", "About Us", "aboutLink", size = "large", ######POP UP FOR ABOUT PAGE
-            
-            tags$head(
-              tags$style(HTML("
-                              .modal{
-                              
-                              }
-                              .modal-body {
-                              
-                              }
-                              "))
-              ),
-            
-            HTML("<h1>About Us</h1>")
-            
-            
-            
-            ),
+    h1("About Us")
+    ),
     bsModal("guidePage", "Guide", "guideLink", size = "large", ######POP UP FOR GUIDE PAGE
-            
-            tags$head(
-              tags$style(HTML("
-                              .modal{
-                              
-                              }
-                              .modal-body {
-                              
-                              }
-                              "))
-              ),
-            
-            
-            h1("Guide")
-            
-            
-            ),
+    h1("Guide")
+    ),
     fluidRow(
       HTML("<div class='tabs'>"),
       tabBox(

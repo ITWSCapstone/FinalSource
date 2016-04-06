@@ -65,7 +65,6 @@ shinyServer(function(input, output, session) {
   ))
   
   output$summary<-renderPrint({summary(tbl())})
-  
 
   #################
   # VISUALIZATION #
@@ -226,9 +225,9 @@ shinyServer(function(input, output, session) {
     pdf(file) 
     for (i in 1:length(input$plots)){
       if(input$plots[i]=="Boxplot")
-        print (bplot())
+        print(bplot())
       if(input$plots[i]=="Density Plot")
-        print (dplot())
+        print(dplot())
       if(input$plots[i]=="Scatter Plot")
         print(splot())
     }
