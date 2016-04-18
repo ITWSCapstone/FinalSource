@@ -80,7 +80,7 @@ dashboardPage(skin="red",
               div(style="display:inline-block; padding-right:8px;",uiOutput("clust_dep")),
               div(style="display:inline-block; padding-right:8px;",uiOutput("clust_indep")),
               div(style="display:inline-block; padding-right:8px;",numericInput('clusters', 'Cluster count', 3,min = 1, max = 9)),
-              plotOutput('model1',click="model1click"),
+              plotOutput('model1'),
               hidden(
                 tableOutput("model1_info")
               )
@@ -88,7 +88,7 @@ dashboardPage(skin="red",
             box(id="model2_box",title="Bivariate Linear Regression",width=12,solidHeader = TRUE,
               div(style="display:inline-block; padding-right:8px;",uiOutput("lm_dep")),
               div(style="display:inline-block; padding-right:8px;",uiOutput("lm_indep")),
-              plotOutput('model2',click="model2click"),
+              plotOutput('model2'),
               hidden(
                 div(id="model2_i",
                   box( title="Summary",
@@ -99,17 +99,18 @@ dashboardPage(skin="red",
                   )
                 )
               )
-            ),
+            ),   
+
             box(id="model3_box",title="Decision Tree",width=12,solidHeader = TRUE,
                 div(style="display:inline-block; padding-right:8px;",uiOutput("tree_dep")),
                 div(style="display:inline-block; padding-right:8px;",uiOutput("tree_indep")),
-                plotOutput('model3',click="model3click")
+                plotOutput('model3')
             ),
             box(id="model4_box",title="ARIMA",width=12,solidHeader = TRUE,
                 div(style="display:inline-block; padding-right:8px;",uiOutput("arima_dep")),
                 div(style="display:inline-block; padding-right:8px;",uiOutput("arima_indep")),
                 div(style="display:inline-block; padding-right:8px;",uiOutput("timecol")),
-                plotOutput('model4',click="model4click"),
+                plotOutput('model4'),
                 hidden(
                   verbatimTextOutput("model4_info")
                 )

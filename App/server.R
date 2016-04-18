@@ -180,9 +180,7 @@ shinyServer(function(input, output, session) {
     plot(resid(mod))
     abline(0,0, col="red")
   })
-  shinyjs::onclick("model2",toggle("model2_i", anim=TRUE))
-  shinyjs::onclick("model2_i",toggle("model2", anim=TRUE))
-  
+  onclick("model2",toggle("model2_i", anim=TRUE))
   # Decision Tree
   output$tree_indep <- renderUI({
     selectInput("tree_indep", "Independent Variable(s)", names(tbl()[ , names(tbl()) != input$tree_dep]), multiple=TRUE, selected=list(names(tbl()[ , names(tbl()) != input$tree_dep])[[2]]))
@@ -216,7 +214,7 @@ shinyServer(function(input, output, session) {
     names(TS)=c("Actuals", "Fitted")
     dygraph(TS, main=paste(input$timecol, "Forecast", sep= " ")) %>% dyRangeSelector()
   })
-  
+
   
   #########################################
   #            SAVE PLOT(S)               #
