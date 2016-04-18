@@ -6,8 +6,7 @@ library(ggplot2)
 library(reshape2)
 library(dygraphs)
 library(xts)
-library(rpart)
-library(knitr)
+library(party)
 library(DT)
 theme_set(theme_bw())
    
@@ -38,11 +37,16 @@ dashboardPage(skin="red",
   ),
   dashboardBody(
     useShinyjs(),
-    bsModal("aboutPage", "About Us", "aboutLink", size = "large", ######POP UP FOR ABOUT PAGE
-    h1("About Us")
+    bsModal("aboutPage", "About Us", "aboutLink", size = "large", # Popup About
+      h1("About Us")
     ),
-    bsModal("guidePage", "Guide", "guideLink", size = "large", ######POP UP FOR GUIDE PAGE
-    h1("Guide")
+    bsModal("guidePage", "Guide", "guideLink", size = "large", # Popup Guide
+      h4("Step 1"),
+      p("Lorem Ipsum..."),
+      h4("Step 2"),
+      p("Lorem Ipsum..."),
+      h4("Step 3"),
+      p("Lorem Ipsum...")
     ),
     fluidRow(
       HTML("<div class='tabs'>"),
@@ -53,7 +57,7 @@ dashboardPage(skin="red",
             box(title="Boxplot", width=12,solidHeader=TRUE,plotOutput("boxplot")),
             box(title="Densityplot",width=12,solidHeader=TRUE,plotOutput("densityplot",dblclick = "plotdblclick",brush = brushOpts(id = "brush",resetOnNew = TRUE))),
             box(title="Scatterplot",width=12,solidHeader=TRUE,plotOutput("scatterplot")),
-            auto.advance=FALSE #<<<<<<<<<<<<<<<<<<<<<<<<<<<<< WHAT SHOULD WE DO?? AUTO ADVANCE???
+            auto.advance=FALSE 
           )
         ),
         tabPanel("Model",
@@ -96,7 +100,7 @@ dashboardPage(skin="red",
                   verbatimTextOutput("model4_info")
                 )
             ),
-            auto.advance=FALSE #<<<<<<<<<<<<<<<<<<<<<<<<<<<<< WHAT SHOULD WE DO?? AUTO ADVANCE???
+            auto.advance=FALSE
           )
         )
       ),
