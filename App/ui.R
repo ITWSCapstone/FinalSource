@@ -6,8 +6,7 @@ library(ggplot2)
 library(reshape2)
 library(dygraphs)
 library(xts)
-library(rpart)
-library(knitr)
+library(party)
 library(DT)
 theme_set(theme_bw())
    
@@ -72,7 +71,7 @@ dashboardPage(skin="red",
             box(title="Boxplot", width=12,solidHeader=TRUE,plotOutput("boxplot")),
             box(title="Densityplot",width=12,solidHeader=TRUE,plotOutput("densityplot",dblclick = "plotdblclick",brush = brushOpts(id = "brush",resetOnNew = TRUE))),
             box(title="Scatterplot",width=12,solidHeader=TRUE,plotOutput("scatterplot")),
-            auto.advance=FALSE #<<<<<<<<<<<<<<<<<<<<<<<<<<<<< WHAT SHOULD WE DO?? AUTO ADVANCE???
+            auto.advance=FALSE 
           )
         ),
         tabPanel("Model",
@@ -115,7 +114,7 @@ dashboardPage(skin="red",
                   verbatimTextOutput("model4_info")
                 )
             ),
-            auto.advance=FALSE #<<<<<<<<<<<<<<<<<<<<<<<<<<<<< WHAT SHOULD WE DO?? AUTO ADVANCE???
+            auto.advance=FALSE
           )
         )
       ),

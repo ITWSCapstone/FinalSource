@@ -40,7 +40,13 @@ img{
   margin-top:8px;
   margin-right:5px;
 }
+<<<<<<< HEAD
 #About{color:red;}
 .aboutques{font-weight: bold;}
 
 #Guide{color:red;}
+=======
+.progress{
+  margin-bottom:0px;
+}
+>>>>>>> origin/master
