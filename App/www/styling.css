@@ -1,6 +1,10 @@
 .dataTables_wrapper { overflow-x: scroll; }
 .shiny-output-error { visibility: hidden; } 
 .shiny-output-error:before { visibility: hidden; }
+.modal-body{
+  margin-left: 10px;
+  margin-right:10px;
+}
 .carousel-indicators li {
   background-color: #DDD;
   background-color: rgba(70,70,70,.25);
@@ -40,13 +44,26 @@ img{
   margin-top:8px;
   margin-right:5px;
 }
-<<<<<<< HEAD
-#About{color:red;}
+#About{
+  color:red;
+  margin-top: -10px;
+  padding-bottom: 20px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid rgba(192, 192, 192, .6);
+}
 .aboutques{font-weight: bold;}
 
-#Guide{color:red;}
-=======
+#Guide{color:red;
+  margin-top: -10px;
+  padding-bottom: 20px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid rgba(192, 192, 192, .6);
+}
+h3{
+  height:9.5em;
+  text-align: left;
+  padding-top: 10px
+}
 .progress{
   margin-bottom:0px;
 }
->>>>>>> origin/master

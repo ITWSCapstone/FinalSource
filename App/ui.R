@@ -37,31 +37,33 @@ dashboardPage(skin="red",
   ),
   dashboardBody(
     useShinyjs(),
-    bsModal("aboutPage", "About Us", "aboutLink", size = "large", ######POP UP FOR ABOUT PAGE
+    bsModal("aboutPage", title=NULL, "aboutLink", size = "large", ######POP UP FOR ABOUT PAGE
     h1("About Us", align = "center", id = "About"),
-    h4("About this application?", align = "left", class = "aboutques"),
+    h4("About Forecasting Analytics", align = "left", class = "aboutques"),
     p("Our mission for this project is to create an efficient, automated and interactive interface which will allow stakeholders to upload their data in a specified format and output the appropriate forecasting method along with data visualization. 
       The application will educate end-users on forecasting techniques to help format data, choose appropriate models, and ultimately allow Johnson & Johnson to make better data-driven decisions."),
-    h4("Purpose of this application", align = "left", class = "aboutques"),
+    h4("Purpose of Forecasting Analytics", align = "left", class = "aboutques"),
     p("Johnson & Johnson guides their decision making through values spelled out in The Credo. The Credo challenges Johnson & Johnson to put the needs and well-being of the people they serve first. This project helps to serve the employees and ultimately the doctors, nurses and patients, mothers and fathers, and any others who use Johnson & Johnson’s products and services. 
       Through building this company-wide forecasting application, employees will be able to effectively analyze data to better serve the interests of Johnson & Johnson’s customers. "),
-   h4("If i am having issues with this application, what should i do?", align = "left", class = "aboutques"),
-    p("You are able to play around with the data until you feel comfortable to use your original data. You can follow step by step tutorials in the guide section for assitance 
+   h4("First-time Users", align = "left", class = "aboutques"),
+    p("You are able to play around with the data until you feel comfortable to use your original data. You can follow step by step tutorials in the guide section for assitance.
       Please contact ---- for further questions"),
    img(src="jnjaslogo.png", height = 100, align = "center")
     
    
     ),
     
-    bsModal("guidePage", "Guide", "guideLink", size = "large", ######POP UP FOR GUIDE PAGE
-    h1("Easy Guide",align = "center", id = "Guide"),
-    img(src="Step1.png", align = "left"),
-    p("Upload a file"),
-    img(src="Step2.png", align = "middle"),
-    p("View Models and Visualization"),
-    img(src="Step3.png", align = "right"),
-    p("Use filters to predict")
-     ),
+    bsModal("guidePage", title=NULL, "guideLink", size = "large", ######POP UP FOR GUIDE PAGE
+      h1("Step-by-Step Guide",align = "center", id = "Guide"),
+      fluidRow(
+        div(id="steps",align="center",
+          img(src="Step1.png"),
+          img(src="Step2.png"),
+          img(src="Step3.png")
+        )
+      )
+
+    ),
     fluidRow(
       HTML("<div class='tabs'>"),
       tabBox(
