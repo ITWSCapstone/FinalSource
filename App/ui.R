@@ -45,7 +45,7 @@ dashboardPage(skin="red",
     h4("Purpose of Forecasting Analytics", align = "left", class = "aboutques"),
     p("Johnson & Johnson guides their decision making through values spelled out in The Credo. The Credo challenges Johnson & Johnson to put the needs and well-being of the people they serve first. This project helps to serve the employees and ultimately the doctors, nurses and patients, mothers and fathers, and any others who use Johnson & Johnson’s products and services. 
       Through building this company-wide forecasting application, employees will be able to effectively analyze data to better serve the interests of Johnson & Johnson’s customers. "),
-   h4("First-time Users", align = "left", class = "aboutques"),
+    h4("First-time Users", align = "left", class = "aboutques"),
     p("You are able to play around with the data until you feel comfortable to use your original data. You can follow step by step tutorials in the guide section for assitance.
       Please contact ---- for further questions"),
    img(src="jnjaslogo.png", height = 100, align = "center")
@@ -57,9 +57,13 @@ dashboardPage(skin="red",
       h1("Step-by-Step Guide",align = "center", id = "Guide"),
       fluidRow(
         div(id="steps",align="center",
+          HTML('<figure>'),
           img(src="Step1.png"),
+          HTML('<figcaption>Input Data</figcaption></figure><figure>'),
           img(src="Step2.png"),
-          img(src="Step3.png")
+          HTML('<figcaption>Model and Visualize Data</figcaption></figure><figure>'),
+          img(src="Step3.png"),
+          HTML('<figcaption>Download Results</figcaption></figure><figure>')
         )
       )
 
