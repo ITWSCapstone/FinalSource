@@ -54,9 +54,11 @@ dashboardPage(skin="red",
       fluidRow(
         div(id="steps",align="center",
           HTML('<figure>'),img(src="Step1.png"),
-          HTML('<figcaption>Input Data</figcaption></figure><figure>'),img(src="Step2.png"),
-          HTML('<figcaption>Model and Visualize Data</figcaption></figure><figure>'),img(src="Step3.png"),
-          HTML('<figcaption>Download Results</figcaption></figure><figure>')
+          HTML('<figcaption>Input Data<p>Choose a file by selecting "Input Data" tab.</p> 
+               <p>Make sure you file is in CSV. or Excel format</p></figcaption></figure><figure>'),img(src="Step2.png"),
+          HTML('<figcaption>Model and Visualize Data<p> View different models and visualization from the uploaded data</p>
+               <p>Use different filters and modeling variables to view better results</p></figcaption></figure><figure>'),img(src="Step3.png"),
+          HTML('<figcaption>Download Results<p>Download analytics results from the "Download" button</figcaption></figure><figure>')
         )
       )
     ),
