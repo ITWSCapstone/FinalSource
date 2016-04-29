@@ -25,6 +25,8 @@
   opacity: 0.2;
   border: none;
   top: -30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 img{
   padding-top:5px;
