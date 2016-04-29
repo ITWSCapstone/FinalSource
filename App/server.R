@@ -6,6 +6,7 @@ shinyServer(function(input, output, session) {
   #############################
   # DATA INPUT + MANIPULATION #
   #############################
+  
   tbl<-reactive({ #tbl()=user input or sample iris data
     inFile <- input$file1
     if (is.null(inFile)) {
@@ -13,6 +14,9 @@ shinyServer(function(input, output, session) {
     }
     else{
       csv<-read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote)  
+      csv <- csv[,colSums(is.na(csv))<nrow(csv)] #remove columns with all NAs
+      csv<-na.omit(csv) #omit N/A values
+      return(csv)
     }
   })
   
@@ -25,34 +29,10 @@ shinyServer(function(input, output, session) {
     a1=as.numeric(as.character(data[,colindex]))
     curr=data.frame(a1)
     curr=curr[rowSums(is.na(curr)) != ncol(curr),]
+    print("TESTING 1 2 3............")
+    print(tbl()[input$timecol][-1])
     thets=ts(curr, start=c(2011,50) , frequency=52) #<<<<<<<<<NEED TO DYNAMICALLY SET DATE RANGE SOMEHOW.....
     thets
-    
-  })
-  TheETS<-reactive({
-    #returns selcted series as ETS for dygraphs
-    if (is.null(input$timecol)){
-      return (NULL)
-    }
-    data=tbl()
-    colindex=grep(input$timecol, names(data))
-    
-    #ACTUALS
-    act=as.numeric((data[,colindex]))
-    act=data.frame(act)
-    act=act[rowSums(is.na(act)) != ncol(act),]
-    
-    #FITTED
-    fit=as.numeric((data[,colindex+1]))
-    fit=data.frame(fit)
-    fit=fit[rowSums(is.na(fit)) != ncol(fit),] #remove NAs
-    
-    dateindex=grep("Period",names(data))
-    dates=as.character(data[,dateindex]) #HARD CODED UGH
-    dates=as.Date((dates),"%B/%d/%Y") #Will need all dates to be formatted as such
-    dates=head(dates, length(act))
-    ret=xts(cbind(act,fit),order.by = dates)
-    ret
   })
   
   # EXPORT DATA TO TABLE
@@ -112,6 +92,12 @@ shinyServer(function(input, output, session) {
   })
   
   # SCATTERPLOT
+  output$timecol <- renderUI({
+    selectizeInput(
+      'timecol', 'Choose Time Series', choices = names(tbl()),
+      multiple = TRUE, options = list(maxItems = 1)
+    )
+  })
   splot = function() {
     if(is.null(TheTS())) { 
       if(is.null(input$groupcol)){
@@ -202,15 +188,37 @@ shinyServer(function(input, output, session) {
     numeric <- !sapply(tbl(), is.numeric)
     selectInput("arima_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
   })
-  output$timecol <- renderUI({
+  output$timecol2 <- renderUI({
     selectizeInput(
       'timecol', 'Choose Time Series', choices = names(tbl()),
       multiple = TRUE, options = list(maxItems = 1)
     )
   })
+  selectedTimeSeries <- reactive({tbl()[input$timecol2]})
   output$model4<-renderPlot({
-    if(is.null(TheETS())) { return(NULL)}
-    TS=TheETS()
+    print(selectedTimeSeries)
+    if (is.null(selectedTimeSeries)){
+      return (NULL)
+    }
+    data=tbl()
+    colindex=grep(selectedTimeSeries, names(data))
+    print (colindex)
+    #ACTUALS
+    act=as.numeric((data[,colindex]))
+    act=data.frame(act)
+    act=act[rowSums(is.na(act)) != ncol(act),]
+    
+    #FITTED
+    fit=as.numeric((data[,colindex+1]))
+    fit=data.frame(fit)
+    fit=fit[rowSums(is.na(fit)) != ncol(fit),] #remove NAs
+    
+    dateindex=grep("Period",names(data))
+    dates=as.character(data[,dateindex]) #HARD CODED UGH
+    dates=as.Date((dates),"%B/%d/%Y") #Will need all dates to be formatted as such
+    dates=head(dates, length(act))
+    ret=xts(cbind(act,fit),order.by = dates)
+    TS=ret
     names(TS)=c("Actuals", "Fitted")
     dygraph(TS, main=paste(input$timecol, "Forecast", sep= " ")) %>% dyRangeSelector()
   })

@@ -12,8 +12,8 @@ theme_set(theme_bw())
    
 source("functions.R",local=TRUE)
 dbHeader<-dashboardHeader(titleWidth = 350)
-dbHeader$children[[2]]$children <- tags$div(tags$img(src='jjlogo.png',height='60',width='310'))
-dbHeader$children[[3]]$children <- tags$div(id="buttons",actionButton("aboutLink", "About Us", icon=icon("user")), actionButton("guideLink", "Guide", icon=icon("book")))
+dbHeader$children[[2]]$children <- div(tags$img(src='jjlogo.png',height='60',width='310'))
+dbHeader$children[[3]]$children <- div(id="buttons",actionButton("aboutLink", "About Us", icon=icon("user")), actionButton("guideLink", "Guide", icon=icon("book")))
 dashboardPage(skin="red", 
   dbHeader,
   dashboardSidebar(
@@ -21,12 +21,11 @@ dashboardPage(skin="red",
         tags$link(rel = "stylesheet", type = "text/css", href = "styling.css") #styling from external stylesheet
       ),
       sidebarMenu(id = "sidebarmenu",
-        menuItem("Input Data", tabName = "inputData", icon = icon("download")),
-        conditionalPanel("input.sidebarmenu === 'inputData'", id="cpanel1",
-            fileInput('file1', 'Choose CSV File',accept=c('text/csv', 'text/comma-separated-values,text/plain', '.csv')),
-            checkboxInput('header', 'Header', TRUE),
-            radioButtons('sep', 'Separator',c(Comma=',',Semicolon=';',Tab='\t'),'Comma'),
-            radioButtons('quote', 'Quote',c(None='','Double Quote'='"','Single Quote'="'"),'Double Quote')
+        menuItem("Input Data", icon = icon("download"),
+        menuSubItem(icon=NULL,fileInput('file1', 'Choose CSV File',accept=c('text/csv', 'text/comma-separated-values,text/plain', '.csv'))),
+        menuSubItem(icon=NULL,checkboxInput('header', 'Header', TRUE)),
+        menuSubItem(icon=NULL,radioButtons('sep', 'Separator',c(Comma=',',Semicolon=';',Tab='\t'),'Comma')),
+        menuSubItem(icon=NULL,radioButtons('quote', 'Quote',c(None='','Double Quote'='"','Single Quote'="'"),'Double Quote'))
         ),
         menuItem("Visualization Filters", tabName = "visualFilters", icon = icon("bar-chart")),
         conditionalPanel("input.sidebarmenu ==='visualFilters'",
@@ -49,34 +48,26 @@ dashboardPage(skin="red",
     p("You are able to play around with the data until you feel comfortable to use your original data. You can follow step by step tutorials in the guide section for assitance.
       Please contact ---- for further questions"),
    img(src="jnjaslogo.png", height = 100, align = "center")
-    
-   
     ),
-    
     bsModal("guidePage", title=NULL, "guideLink", size = "large", ######POP UP FOR GUIDE PAGE
       h1("Step-by-Step Guide",align = "center", id = "Guide"),
       fluidRow(
         div(id="steps",align="center",
-          HTML('<figure>'),
-          img(src="Step1.png"),
-          HTML('<figcaption>Input Data</figcaption></figure><figure>'),
-          img(src="Step2.png"),
-          HTML('<figcaption>Model and Visualize Data</figcaption></figure><figure>'),
-          img(src="Step3.png"),
+          HTML('<figure>'),img(src="Step1.png"),
+          HTML('<figcaption>Input Data</figcaption></figure><figure>'),img(src="Step2.png"),
+          HTML('<figcaption>Model and Visualize Data</figcaption></figure><figure>'),img(src="Step3.png"),
           HTML('<figcaption>Download Results</figcaption></figure><figure>')
         )
       )
-
     ),
     fluidRow(
       HTML("<div class='tabs'>"),
-      tabBox(
-        id="tabs", width=12,
+      tabBox(id="tabs", width=12,
         tabPanel("Visualize",
           carouselPanel(
             box(title="Boxplot", width=12,solidHeader=TRUE,plotOutput("boxplot")),
             box(title="Densityplot",width=12,solidHeader=TRUE,plotOutput("densityplot",dblclick = "plotdblclick",brush = brushOpts(id = "brush",resetOnNew = TRUE))),
-            box(title="Scatterplot",width=12,solidHeader=TRUE,plotOutput("scatterplot")),
+            box(title="Scatterplot",width=12,solidHeader=TRUE,div(style="display:inline-block; padding-right:8px;",uiOutput("timecol")),plotOutput("scatterplot")),
             auto.advance=FALSE 
           )
         ),
@@ -115,7 +106,7 @@ dashboardPage(skin="red",
             box(id="model4_box",title="ARIMA",width=12,solidHeader = TRUE,
                 div(style="display:inline-block; padding-right:8px;",uiOutput("arima_dep")),
                 div(style="display:inline-block; padding-right:8px;",uiOutput("arima_indep")),
-                div(style="display:inline-block; padding-right:8px;",uiOutput("timecol")),
+                div(style="display:inline-block; padding-right:8px;",uiOutput("timecol2")),
                 plotOutput('model4'),
                 hidden(
                   verbatimTextOutput("model4_info")
