@@ -67,18 +67,20 @@ dashboardPage(skin="red",
       tabBox(id="tabs", width=12,
         tabPanel("Visualize",
           carouselPanel(
-            box(title="Boxplot", width=12,solidHeader=TRUE,plotOutput("boxplot")),
-            box(title="Densityplot",width=12,solidHeader=TRUE,plotOutput("densityplot",dblclick = "plotdblclick",brush = brushOpts(id = "brush",resetOnNew = TRUE))),
-            box(title="Scatterplot",width=12,solidHeader=TRUE,div(style="display:inline-block; padding-right:8px;",uiOutput("timecol")),plotOutput("scatterplot")),
+            box(title="Boxplot", div(class="info-icon", id="boxplot-info", icon("info-circle")), width=12,solidHeader=TRUE, plotOutput("boxplot")),
+            box(title="Densityplot", div(class="info-icon", id="densityplot-info", icon("info-circle")), width=12,solidHeader=TRUE,plotOutput("densityplot",dblclick = "plotdblclick",brush = brushOpts(id = "brush",resetOnNew = TRUE))),
+            box(title="Scatterplot", div(class="info-icon", id="scatterplot-info", icon("info-circle")), width=12,solidHeader=TRUE,div(style="clear:both; padding-right:8px; width: 25%;",uiOutput("timecol")),plotOutput("scatterplot")),
             auto.advance=FALSE 
           )
         ),
         tabPanel("Model",
           carouselPanel(
-            box(id="model1_box",title="K Means Clustering",width=12,solidHeader = TRUE,
-              div(style="display:inline-block; padding-right:8px;",uiOutput("clust_dep")),
-              div(style="display:inline-block; padding-right:8px;",uiOutput("clust_indep")),
-              div(style="display:inline-block; padding-right:8px;",numericInput('clusters', 'Cluster count', 3,min = 1, max = 9)),
+            box(id="model1_box",title="K Means Clustering", div(class="info-icon", id="kmeans-info", icon("info-circle")), width=12,solidHeader = TRUE,
+              div(class="control-row", style="width: 100%; clear: both;", 
+                div(style="float: left; padding-right:8px; width: 25%;",uiOutput("clust_dep")),
+                div(style="float: left; padding-right:8px; width: 25%;",uiOutput("clust_indep")),
+                div(style="float: left; padding-right:8px; width: 25%;",numericInput('clusters', 'Cluster count', 3,min = 1, max = 9))
+              ), 
               plotOutput('model1'),
               hidden(
                 div(id="model1_i",
@@ -88,9 +90,11 @@ dashboardPage(skin="red",
                 )
               )
             ),
-            box(id="model2_box",title="Bivariate Linear Regression",width=12,solidHeader = TRUE,
-              div(style="display:inline-block; padding-right:8px;",uiOutput("lm_dep")),
-              div(style="display:inline-block; padding-right:8px;",uiOutput("lm_indep")),
+            box(id="model2_box",title="Bivariate Linear Regression", div(class="info-icon", id="bivariate-info", icon("info-circle")), width=12,solidHeader = TRUE,
+              div(class="control-row", style="width: 100%; clear: both;",
+                div(style="display:inline-block; padding-right:8px;",uiOutput("lm_dep")),
+                div(style="display:inline-block; padding-right:8px;",uiOutput("lm_indep"))
+              ), 
               plotOutput('model2'),
               hidden(
                 div(id="model2_i",
@@ -104,6 +108,7 @@ dashboardPage(skin="red",
               )
             ),   
 
+<<<<<<< Updated upstream
             box(id="model3_box",title="Decision Tree",width=12,solidHeader = TRUE,
                 div(style="display:inline-block; padding-right:8px;",uiOutput("tree_dep")),
                 div(style="display:inline-block; padding-right:8px;",uiOutput("tree_indep")),
@@ -121,6 +126,21 @@ dashboardPage(skin="red",
                 div(style="display:inline-block; padding-right:8px;",uiOutput("arima_dep")),
                 div(style="display:inline-block; padding-right:8px;",uiOutput("arima_indep")),
                 div(style="display:inline-block; padding-right:8px;",uiOutput("timecol2")),
+=======
+            box(id="model3_box",title="Decision Tree", div(class="info-icon", id="decisiontree-info", icon("info-circle")), width=12,solidHeader = TRUE,
+                div(class="control-row", style="width: 100%; clear: both;",
+                  div(style="display:inline-block; padding-right:8px;",uiOutput("tree_dep")),
+                  div(style="display:inline-block; padding-right:8px;",uiOutput("tree_indep"))
+                ), 
+                plotOutput('model3')
+            ),
+            box(id="model4_box",title="ARIMA", div(class="info-icon", id="arima-info", icon("info-circle")), width=12,solidHeader = TRUE,
+                div(class="control-row", style="width: 100%; clear: both;", 
+                  div(style="display:inline-block; padding-right:8px;",uiOutput("arima_dep")),
+                  div(style="display:inline-block; padding-right:8px;",uiOutput("arima_indep")),
+                  div(style="display:inline-block; padding-right:8px;",uiOutput("timecol2"))
+                ),
+>>>>>>> Stashed changes
                 plotOutput('model4'),
                 hidden(
                   verbatimTextOutput("model4_info")

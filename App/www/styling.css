@@ -25,7 +25,7 @@
   opacity: 0.2;
   border: none;
   top: -30px;
-  margin-top: 10px;
+  margin-top: 100px;
   margin-bottom: 10px;
 }
 img{
@@ -74,4 +74,19 @@ figure {
 }
 .progress{
   margin-bottom:0px;
+
 }
+
+
+/*Adding icons to titles in carousels */
+.box-header {
+  width: 20em;
+  float: left;
+  margin-right: 10px;
+}
+
+.info-icon {
+  float: left;
+  clear: right;
+}
+
