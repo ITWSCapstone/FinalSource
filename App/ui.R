@@ -61,7 +61,9 @@ dashboardPage(skin="red",
       )
     ),
     fluidRow(
-      bsTooltip("boxplot-info", "HELLO HELLO", placement = "right", trigger = "hover"),
+      bsTooltip("boxplot-info", "A standardized way of displaying the distribution of data based on the minimum, first quartile, median, third quartile, and maximum; the first to third quartile is the interquartile range (IQR) in which outliers = 3xIQR above the third quartile or 3xIQR below the first quartile", placement = "bottom", trigger = "hover"),
+      bsTooltip("densityplot-info", "A curve plotted over a histogram; the histogram bars represent the frequency of occurrence by classes of data and the integral of the curve then gives the probability of any distinct value", placement = "bottom", trigger = "hover"),
+      bsTooltip("scatterplot-info", "A plot that uses Cartesian coordinates to display values for two or more variables for a set of data; can suggest various kinds of correlations between variables", placement = "bottom", trigger = "hover"),
       HTML("<div class='tabs'>"),
       tabBox(id="tabs", width=12,
         tabPanel("Visualize",
