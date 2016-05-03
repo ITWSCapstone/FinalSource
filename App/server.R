@@ -136,11 +136,10 @@ shinyServer(function(input, output, session) {
     points(clusters()$centers, pch = 4, cex = 4, lwd = 4)
   }
   output$model1<-renderPlot({print(cplot())})
-  output$model1_info<-renderTable({
-    table(clusters()$cluster, input$clust_dep)
+  output$model1_info<-renderPrint({
+    print(clusters())
   })
   shinyjs::onclick("model1",toggle("model1_i", anim=TRUE))
-  shinyjs::onclick("model1_i",toggle("model1", anim=TRUE))
   
   # BIVARIATE LINEAR REGRESSION
   output$lm_indep <- renderUI({
@@ -181,6 +180,11 @@ shinyServer(function(input, output, session) {
     stree = ctree(as.formula(paste(input$tree_dep," ~ ",paste(input$tree_indep,collapse="+"))), data = tbl())
     plot(stree)
   })
+  output$model3_info<-renderPrint({
+    stree = ctree(as.formula(paste(input$tree_dep," ~ ",paste(input$tree_indep,collapse="+"))), data = tbl())
+    print(stree)
+  })
+  onclick("model3",toggle("model3_i", anim=TRUE))
   
   # ARIMA
   output$arima_indep <- renderUI({

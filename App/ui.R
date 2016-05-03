@@ -81,7 +81,11 @@ dashboardPage(skin="red",
               div(style="display:inline-block; padding-right:8px;",numericInput('clusters', 'Cluster count', 3,min = 1, max = 9)),
               plotOutput('model1'),
               hidden(
-                tableOutput("model1_info")
+                div(id="model1_i",
+                    box( title="More Information",width=12,
+                         verbatimTextOutput("model1_info")   
+                    )
+                )
               )
             ),
             box(id="model2_box",title="Bivariate Linear Regression",width=12,solidHeader = TRUE,
@@ -90,10 +94,10 @@ dashboardPage(skin="red",
               plotOutput('model2'),
               hidden(
                 div(id="model2_i",
-                  box( title="Summary",
+                  box( title="More Information", width=7,
                     verbatimTextOutput("model2_info")   
                   ),
-                  box( title="Residuals",
+                  box( title="Residuals",width=5,
                     plotOutput("model2_resid") 
                   )
                 )
@@ -103,8 +107,16 @@ dashboardPage(skin="red",
             box(id="model3_box",title="Decision Tree",width=12,solidHeader = TRUE,
                 div(style="display:inline-block; padding-right:8px;",uiOutput("tree_dep")),
                 div(style="display:inline-block; padding-right:8px;",uiOutput("tree_indep")),
-                plotOutput('model3')
+                plotOutput('model3'),
+                hidden(
+                  div(id="model3_i",
+                      box( title="More Information", width=12,
+                           verbatimTextOutput("model3_info")   
+                      )
+                  )
+                )
             ),
+                      
             box(id="model4_box",title="ARIMA",width=12,solidHeader = TRUE,
                 div(style="display:inline-block; padding-right:8px;",uiOutput("arima_dep")),
                 div(style="display:inline-block; padding-right:8px;",uiOutput("arima_indep")),
