@@ -142,7 +142,7 @@ shinyServer(function(input, output, session) {
   shinyjs::onclick("model1",toggle("model1_i", anim=TRUE))
   shinyjs::onclick("model1_i",toggle("model1", anim=TRUE))
   
-  # LINEAR REGRESSION
+  # BIVARIATE LINEAR REGRESSION
   output$lm_indep <- renderUI({
     numeric <- sapply(tbl(), is.numeric)
     selectInput("lm_indep", "Independent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[2]]))
@@ -152,21 +152,24 @@ shinyServer(function(input, output, session) {
     selectInput("lm_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
   })
   output$model2<-renderPlot({
-    ggplot(tbl(), aes(x=tbl()[input$lm_indep], y=tbl()[input$lm_dep])) + 
-      geom_point()+
-      geom_smooth(method=lm)+
-      labs(x = input$lm_indep,y = input$lm_dep)
+    fit<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep))),data=tbl())
+    ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+      geom_point() +
+      stat_smooth(method = "lm", col = "red") +
+      labs(title = paste("y =",signif(fit$coef[[2]], 5),"x + ",signif(fit$coef[[1]],5 )))
+    
   })
   output$model2_info<-renderPrint({
-    mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep,collapse="+"))),data=tbl())
+    mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep))),data=tbl())
     print(summary(mod))
   })
   output$model2_resid<-renderPlot({
-    mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep,collapse="+"))),data=tbl())
+    mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep))),data=tbl())
     plot(resid(mod))
     abline(0,0, col="red")
   })
   onclick("model2",toggle("model2_i", anim=TRUE))
+  
   # Decision Tree
   output$tree_indep <- renderUI({
     selectInput("tree_indep", "Independent Variable(s)", names(tbl()[ , names(tbl()) != input$tree_dep]), multiple=TRUE, selected=list(names(tbl()[ , names(tbl()) != input$tree_dep])[[2]]))
@@ -227,7 +230,7 @@ shinyServer(function(input, output, session) {
   #########################################
   #            SAVE PLOT(S)               #
   #########################################
-  output$downloadPlots <- downloadHandler( filename = function() {paste(format(Sys.Date, "%d/%b/%Y"),"-Report.pdf")},content = function(file) {
+  output$downloadPlots <- downloadHandler( filename = "Report.pdf",content = function(file) {
     pdf(file) 
     for (i in 1:length(input$plots)){
       if(input$plots[i]=="Boxplot")

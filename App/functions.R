@@ -1,9 +1,3 @@
-convertMenuItem <- function(mi,tabName) {
-  mi$children[[1]]$attribs['data-toggle']="tab"
-  mi$children[[1]]$attribs['data-value'] = tabName
-  mi
-}
-
 #adapted from: https://github.com/dcurrier/carouselPanel/blob/master/carouselPanel.R
 carouselPanel <- function(..., auto.advance=FALSE){
   n = paste(strsplit(paste(strsplit(as.character(rnorm(1)), "[.]")[[1]], collapse=""), "-")[[1]], collapse="")
