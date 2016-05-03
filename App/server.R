@@ -29,7 +29,6 @@ shinyServer(function(input, output, session) {
     a1=as.numeric(as.character(data[,colindex]))
     curr=data.frame(a1)
     curr=curr[rowSums(is.na(curr)) != ncol(curr),]
-    print("TESTING 1 2 3............")
     print(tbl()[input$timecol][-1])
     thets=ts(curr, start=c(2011,50) , frequency=52) #<<<<<<<<<NEED TO DYNAMICALLY SET DATE RANGE SOMEHOW.....
     thets

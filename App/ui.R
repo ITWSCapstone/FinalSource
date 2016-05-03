@@ -61,6 +61,7 @@ dashboardPage(skin="red",
       )
     ),
     fluidRow(
+      bsTooltip("boxplot-info", "HELLO HELLO", placement = "right", trigger = "hover"),
       HTML("<div class='tabs'>"),
       tabBox(id="tabs", width=12,
         tabPanel("Visualize",
