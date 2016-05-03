@@ -67,13 +67,13 @@ dashboardPage(skin="red",
       
       bsTooltip("scatterplot-info", "A plot that uses Cartesian coordinates to display values for two or more variables for a set of data; can suggest various kinds of correlations between variables", placement = "bottom", trigger = "hover"),
       
-      bsTooltip("kmeans-info", "a process of partitioning a group of data points into a small number of clusters; easier to view products and sales in categories", placement = "bottom", trigger = "hover", options = NULL), 
+      bsTooltip("kmeans-info", "A process of partitioning a group of data points into a small number of clusters; easier to view products and sales in categories", placement = "bottom", trigger = "hover", options = NULL), 
       
-      bsTooltip("bivariate-info", "an analysis of two variables for the purpose of determining the empirical relationship between them; can help determine to what extent it becomes easier to know and predict a value for one variable (a dependent variable) if we know the value of the other variable (an independent variable)", placement = "bottom", trigger = "hover", options = NULL),
+      bsTooltip("bivariate-info", "An analysis of two variables for the purpose of determining the empirical relationship between them; can help determine to what extent it becomes easier to know and predict a value for one variable (a dependent variable) if we know the value of the other variable (an independent variable)", placement = "bottom", trigger = "hover", options = NULL),
       
-      bsTooltip("decisiontree-info", "an analysis diagram which can help aid decision makers, when deciding between different options by projecting possible outcomes; gives the decision maker an overview of the multiple stages that will follow each possible decision", placement = "bottom", trigger = "hover", options = NULL),
+      bsTooltip("decisiontree-info", "An analysis diagram which can help aid decision makers, when deciding between different options by projecting possible outcomes; gives the decision maker an overview of the multiple stages that will follow each possible decision", placement = "bottom", trigger = "hover", options = NULL),
       
-      bsTooltip("arima-info", "an autoregressive integrated moving average that uses time series data to predict future trends; can take into account trends, seasonality, cycles, errors and non-stationary aspects of a data set when making forecasts", placement = "bottom", trigger = "hover", options = NULL),
+      bsTooltip("arima-info", "An autoregressive integrated moving average that uses time series data to predict future trends; can take into account trends, seasonality, cycles, errors and non-stationary aspects of a data set when making forecasts", placement = "bottom", trigger = "hover", options = NULL),
 
       HTML("<div class='tabs'>"),
       tabBox(id="tabs", width=12,
