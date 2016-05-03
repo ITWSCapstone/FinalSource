@@ -54,11 +54,9 @@ dashboardPage(skin="red",
       fluidRow(
         div(id="steps",align="center",
           HTML('<figure>'),img(src="Step1.png"),
-          HTML('<figcaption>Input Data<p>Choose a file by selecting "Input Data" tab.</p> 
-               <p>Make sure you file is in CSV. or Excel format</p></figcaption></figure><figure>'),img(src="Step2.png"),
-          HTML('<figcaption>Model and Visualize Data<p> View different models and visualization from the uploaded data</p>
-               <p>Use different filters and modeling variables to view better results</p></figcaption></figure><figure>'),img(src="Step3.png"),
-          HTML('<figcaption>Download Results<p>Download analytics results from the "Download" button</figcaption></figure><figure>')
+          HTML('<figcaption>Input Data</figcaption></figure><figure>'),img(src="Step2.png"),
+          HTML('<figcaption>Model and Visualize Data</figcaption></figure><figure>'),img(src="Step3.png"),
+          HTML('<figcaption>Download Results</figcaption></figure><figure>')
         )
       )
     ),
@@ -83,11 +81,7 @@ dashboardPage(skin="red",
               ), 
               plotOutput('model1'),
               hidden(
-                div(id="model1_i",
-                    box( title="More Information",width=12,
-                         verbatimTextOutput("model1_info")   
-                    )
-                )
+                tableOutput("model1_info")
               )
             ),
             box(id="model2_box",title="Bivariate Linear Regression", div(class="info-icon", id="bivariate-info", icon("info-circle")), width=12,solidHeader = TRUE,
@@ -98,35 +92,16 @@ dashboardPage(skin="red",
               plotOutput('model2'),
               hidden(
                 div(id="model2_i",
-                  box( title="More Information", width=7,
+                  box( title="Summary",
                     verbatimTextOutput("model2_info")   
                   ),
-                  box( title="Residuals",width=5,
+                  box( title="Residuals",
                     plotOutput("model2_resid") 
                   )
                 )
               )
             ),   
 
-<<<<<<< Updated upstream
-            box(id="model3_box",title="Decision Tree",width=12,solidHeader = TRUE,
-                div(style="display:inline-block; padding-right:8px;",uiOutput("tree_dep")),
-                div(style="display:inline-block; padding-right:8px;",uiOutput("tree_indep")),
-                plotOutput('model3'),
-                hidden(
-                  div(id="model3_i",
-                      box( title="More Information", width=12,
-                           verbatimTextOutput("model3_info")   
-                      )
-                  )
-                )
-            ),
-                      
-            box(id="model4_box",title="ARIMA",width=12,solidHeader = TRUE,
-                div(style="display:inline-block; padding-right:8px;",uiOutput("arima_dep")),
-                div(style="display:inline-block; padding-right:8px;",uiOutput("arima_indep")),
-                div(style="display:inline-block; padding-right:8px;",uiOutput("timecol2")),
-=======
             box(id="model3_box",title="Decision Tree", div(class="info-icon", id="decisiontree-info", icon("info-circle")), width=12,solidHeader = TRUE,
                 div(class="control-row", style="width: 100%; clear: both;",
                   div(style="display:inline-block; padding-right:8px;",uiOutput("tree_dep")),
@@ -140,7 +115,6 @@ dashboardPage(skin="red",
                   div(style="display:inline-block; padding-right:8px;",uiOutput("arima_indep")),
                   div(style="display:inline-block; padding-right:8px;",uiOutput("timecol2"))
                 ),
->>>>>>> Stashed changes
                 plotOutput('model4'),
                 hidden(
                   verbatimTextOutput("model4_info")
