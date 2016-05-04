@@ -6,7 +6,8 @@ library(ggplot2)
 library(reshape2)
 library(dygraphs)
 library(xts)
-library(party)
+library(partykit)
+library(Formula)
 library(DT)
 theme_set(theme_bw())
    
@@ -61,14 +62,17 @@ dashboardPage(skin="red",
       )
     ),
     fluidRow(
-      bsTooltip("boxplot-info", "HELLO HELLO", placement = "right", trigger = "hover"),
+      bsTooltip("model1_info" , "Cluster means are the centroids of each cluster. The sum of squares by cluster is a measure of the total variance in the dataset because k-means minimises the spread of the samples, the sum of squares. ", placement = "left", trigger = "hover"),
+      bsTooltip("model2_i2" , "If the points are randomly dispersed around the red line, a linear regression model is appropriate for the data; otherwise, a non-linear model is more appropriate.", placement = "right", trigger = "hover"),
+      bsTooltip("model3_info" , "Err represents the error sum of squares(SSE)-it is used to measure the variation within each node.", placement = "right", trigger = "hover"),
       HTML("<div class='tabs'>"),
       tabBox(id="tabs", width=12,
         tabPanel("Visualize",
           carouselPanel(
             box(title="Boxplot", div(class="info-icon", id="boxplot-info", icon("info-circle")), width=12,solidHeader=TRUE, plotOutput("boxplot")),
             box(title="Densityplot", div(class="info-icon", id="densityplot-info", icon("info-circle")), width=12,solidHeader=TRUE,plotOutput("densityplot",dblclick = "plotdblclick",brush = brushOpts(id = "brush",resetOnNew = TRUE))),
-            box(title="Scatterplot", div(class="info-icon", id="scatterplot-info", icon("info-circle")), width=12,solidHeader=TRUE,div(style="clear:both; padding-right:8px; width: 25%;",uiOutput("timecol")),plotOutput("scatterplot")),
+            box(title="Scatterplot", div(class="info-icon", id="scatterplot-info", icon("info-circle")), width=12,solidHeader=TRUE,plotOutput("scatterplot")),
+            
             auto.advance=FALSE 
           )
         ),
@@ -82,7 +86,11 @@ dashboardPage(skin="red",
               ), 
               plotOutput('model1'),
               hidden(
-                tableOutput("model1_info")
+                div(id="model1_i",
+                    box( title="More Information", width=12,
+                         verbatimTextOutput("model1_info")   
+                    )
+                )
               )
             ),
             box(id="model2_box",title="Bivariate Linear Regression", div(class="info-icon", id="bivariate-info", icon("info-circle")), width=12,solidHeader = TRUE,
@@ -93,11 +101,15 @@ dashboardPage(skin="red",
               plotOutput('model2'),
               hidden(
                 div(id="model2_i",
-                  box( title="Summary",
-                    verbatimTextOutput("model2_info")   
+                  div(id="model2_i1",
+                        box( title="More Information",width=7,
+                             verbatimTextOutput("model2_info")   
+                        )
                   ),
-                  box( title="Residuals",
-                    plotOutput("model2_resid") 
+                  div(id="model2_i2",
+                      box( title="Residuals",width=5,
+                           plotOutput("model2_resid") 
+                      )   
                   )
                 )
               )
@@ -108,18 +120,15 @@ dashboardPage(skin="red",
                   div(style="display:inline-block; padding-right:8px;",uiOutput("tree_dep")),
                   div(style="display:inline-block; padding-right:8px;",uiOutput("tree_indep"))
                 ), 
-                plotOutput('model3')
-            ),
-            box(id="model4_box",title="ARIMA", div(class="info-icon", id="arima-info", icon("info-circle")), width=12,solidHeader = TRUE,
-                div(class="control-row", style="width: 100%; clear: both;", 
-                  div(style="display:inline-block; padding-right:8px;",uiOutput("arima_dep")),
-                  div(style="display:inline-block; padding-right:8px;",uiOutput("arima_indep")),
-                  div(style="display:inline-block; padding-right:8px;",uiOutput("timecol2"))
-                ),
-                plotOutput('model4'),
+                plotOutput('model3'),
                 hidden(
-                  verbatimTextOutput("model4_info")
+                  div(id="model3_i",
+                      box( title="More Information",width=12,
+                           verbatimTextOutput("model3_info")   
+                      )
+                  )
                 )
+                
             ),
             auto.advance=FALSE
           )
@@ -127,7 +136,7 @@ dashboardPage(skin="red",
       ),
       HTML("</div>")
     ),
-    div(style="display:inline-block",selectInput("plots", "Choose Plot(s)", choices=list("Boxplot","Density Plot","Scatter Plot","K-Means","Linear Model","Decision Tree","ARIMA"), multiple=TRUE)),
+    div(style="display:inline-block",selectInput("plots", "Choose Plot(s)", choices=list("Boxplot","Density Plot","Scatter Plot","K-Means","Linear Model","Decision Tree"), multiple=TRUE)),
     div(style="display:inline-block;",downloadButton('downloadPlots')),
     bsCollapsePanel("View Data",bsCollapsePanel("Summary",verbatimTextOutput("summary")), DT::dataTableOutput('mydata'))
   )

@@ -91,26 +91,15 @@ shinyServer(function(input, output, session) {
   })
   
   # SCATTERPLOT
-  output$timecol <- renderUI({
-    selectizeInput(
-      'timecol', 'Choose Time Series', choices = names(tbl()),
-      multiple = TRUE, options = list(maxItems = 1)
-    )
-  })
   splot = function() {
-    if(is.null(TheTS())) { 
-      if(is.null(input$groupcol)){
-        plot(tbl()[input$vis])  
-      }
-      else{
-        plot(tbl()[input$vis],col=tbl()[[input$groupcol]]) 
-        legend ("topleft", legend = levels(tbl()[[input$groupcol]]), col = c(1:3), pch = 16)
-      }
+    if(is.null(input$groupcol)){
+      plot(tbl()[input$vis])  
     }
     else{
-      TS=TheTS()
-      plot(TS, main=paste(input$timecol, sep= " "),xlab="Time", ylab=input$timecol,col="purple")
+      plot(tbl()[input$vis],col=tbl()[[input$groupcol]]) 
+      legend ("topleft", legend = levels(tbl()[[input$groupcol]]), col = c(1:3), pch = 16)
     }
+   
   }
   output$scatterplot<-renderPlot({print(splot())})
   
@@ -127,14 +116,20 @@ shinyServer(function(input, output, session) {
     numeric <- sapply(tbl(), is.numeric)
     selectInput("clust_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
   })
-  selectedData <- reactive({tbl()[, c(input$clust_dep, input$clust_indep)]})
+  selectedData <- reactive({
+    
+    if(is.null(input$clust_dep)){
+      tbl()[,c(names(tbl()[numeric])[[2]],names(tbl()[numeric])[[1]])]
+    }
+    tbl()[, c(input$clust_dep, input$clust_indep)]
+  })
   clusters <- reactive({kmeans(selectedData(), input$clusters)})
-  cplot=function(){
+  kplot=function(){
     par(mar = c(5.1, 4.1, 0, 1))
     plot(selectedData(), col = clusters()$cluster, pch = 20, cex = 3)
     points(clusters()$centers, pch = 4, cex = 4, lwd = 4)
   }
-  output$model1<-renderPlot({print(cplot())})
+  output$model1<-renderPlot({print(kplot())})
   output$model1_info<-renderPrint({
     print(clusters())
   })
@@ -149,14 +144,15 @@ shinyServer(function(input, output, session) {
     numeric <- sapply(tbl(), is.numeric)
     selectInput("lm_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
   })
-  output$model2<-renderPlot({
+  lmplot=function(){
     fit<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep))),data=tbl())
     ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
       geom_point() +
       stat_smooth(method = "lm", col = "red") +
       labs(title = paste("y =",signif(fit$coef[[2]], 5),"x + ",signif(fit$coef[[1]],5 )))
     
-  })
+  }
+  output$model2<-renderPlot({print(lmplot())})
   output$model2_info<-renderPrint({
     mod<-lm(as.formula(paste(input$lm_dep," ~ ",paste(input$lm_indep))),data=tbl())
     print(summary(mod))
@@ -175,59 +171,16 @@ shinyServer(function(input, output, session) {
   output$tree_dep <- renderUI({
     selectInput("tree_dep", "Dependent Variable", names(tbl()), multiple=FALSE, selected=list(names(tbl())[[1]]))
   })
-  output$model3<-renderPlot({
+  dtplot=function(){
     stree = ctree(as.formula(paste(input$tree_dep," ~ ",paste(input$tree_indep,collapse="+"))), data = tbl())
     plot(stree)
-  })
+  }
+  output$model3<-renderPlot({print(dtplot())})
   output$model3_info<-renderPrint({
     stree = ctree(as.formula(paste(input$tree_dep," ~ ",paste(input$tree_indep,collapse="+"))), data = tbl())
     print(stree)
   })
   onclick("model3",toggle("model3_i", anim=TRUE))
-  
-  # ARIMA
-  output$arima_indep <- renderUI({
-    numeric <- sapply(tbl(), is.numeric)
-    selectInput("arima_indep", "Independent Variable(s)", names(tbl()[numeric]), multiple=TRUE, selected=list(names(tbl()[numeric])[[2]]))
-  })
-  output$arima_dep <- renderUI({
-    numeric <- !sapply(tbl(), is.numeric)
-    selectInput("arima_dep", "Dependent Variable", names(tbl()[numeric]), multiple=FALSE, selected=list(names(tbl()[numeric])[[1]]))
-  })
-  output$timecol2 <- renderUI({
-    selectizeInput(
-      'timecol', 'Choose Time Series', choices = names(tbl()),
-      multiple = TRUE, options = list(maxItems = 1)
-    )
-  })
-  selectedTimeSeries <- reactive({tbl()[input$timecol2]})
-  output$model4<-renderPlot({
-    print(selectedTimeSeries)
-    if (is.null(selectedTimeSeries)){
-      return (NULL)
-    }
-    data=tbl()
-    colindex=grep(selectedTimeSeries, names(data))
-    print (colindex)
-    #ACTUALS
-    act=as.numeric((data[,colindex]))
-    act=data.frame(act)
-    act=act[rowSums(is.na(act)) != ncol(act),]
-    
-    #FITTED
-    fit=as.numeric((data[,colindex+1]))
-    fit=data.frame(fit)
-    fit=fit[rowSums(is.na(fit)) != ncol(fit),] #remove NAs
-    
-    dateindex=grep("Period",names(data))
-    dates=as.character(data[,dateindex]) #HARD CODED UGH
-    dates=as.Date((dates),"%B/%d/%Y") #Will need all dates to be formatted as such
-    dates=head(dates, length(act))
-    ret=xts(cbind(act,fit),order.by = dates)
-    TS=ret
-    names(TS)=c("Actuals", "Fitted")
-    dygraph(TS, main=paste(input$timecol, "Forecast", sep= " ")) %>% dyRangeSelector()
-  })
 
   
   #########################################
@@ -242,7 +195,13 @@ shinyServer(function(input, output, session) {
         print(dplot())
       if(input$plots[i]=="Scatter Plot")
         print(splot())
+      if(input$plots[i]=="K-Means")
+        print(kplot())
+      if(input$plots[i]=="Linear Model")
+        print(lmplot())
+      if(input$plots[i]=="Decision Tree")
+        print(dtplot())
     }
     dev.off()})
   
-}) 
+})                 
