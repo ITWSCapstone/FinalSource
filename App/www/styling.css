@@ -33,7 +33,7 @@ img{
   padding-bottom:10px;
 }
 
-@media screen and (min-width: 1024px){
+@media screen and (min-width: 770px){
   .sidebar-toggle {
     display: none;
   }
@@ -42,10 +42,11 @@ img{
   margin-top:-5px;
 }
 #buttons{
-  float:right;
-  margin-top:8px;
-  margin-right:5px;
+  margin-top:1em;
+  margin-bottom:.5em;
+  margin-left:1em;
 }
+
 #About{
   color:#dd4b39;
   margin-top: -10px;

@@ -20,19 +20,6 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  TheTS<-reactive({
-    # RETURNS SELECTED (ACTUALS) AS TIME SERIES
-    if (is.null(input$timecol))
-      return (NULL)
-    data=tbl()
-    colindex=grep(input$timecol, names(data)) #returns column index of column user selects
-    a1=as.numeric(as.character(data[,colindex]))
-    curr=data.frame(a1)
-    curr=curr[rowSums(is.na(curr)) != ncol(curr),]
-    print(tbl()[input$timecol][-1])
-    thets=ts(curr, start=c(2011,50) , frequency=52) #<<<<<<<<<NEED TO DYNAMICALLY SET DATE RANGE SOMEHOW.....
-    thets
-  })
   
   # EXPORT DATA TO TABLE
   output$mydata <- DT::renderDataTable({
@@ -133,7 +120,7 @@ shinyServer(function(input, output, session) {
   output$model1_info<-renderPrint({
     print(clusters())
   })
-  shinyjs::onclick("model1",toggle("model1_i", anim=TRUE))
+  onclick("model1",toggle("model1_i", anim=TRUE))
   
   # BIVARIATE LINEAR REGRESSION
   output$lm_indep <- renderUI({

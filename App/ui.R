@@ -14,13 +14,14 @@ theme_set(theme_bw())
 source("functions.R",local=TRUE)
 dbHeader<-dashboardHeader(titleWidth = 350)
 dbHeader$children[[2]]$children <- div(tags$img(src='jjlogo.png',height='60',width='310'))
-dbHeader$children[[3]]$children <- div(id="buttons",actionButton("aboutLink", "About Us", icon=icon("user")), actionButton("guideLink", "Guide", icon=icon("book")))
+
 dashboardPage(skin="red", 
   dbHeader,
   dashboardSidebar(
       tags$head(
         tags$link(rel = "stylesheet", type = "text/css", href = "styling.css") #styling from external stylesheet
       ),
+      div(id="buttons",actionButton("aboutLink", "About Us", icon=icon("user")), actionButton("guideLink", "Guide", icon=icon("book"))),
       sidebarMenu(id = "sidebarmenu",
         menuItem("Input Data", icon = icon("download"),
         menuSubItem(icon=NULL,fileInput('file1', 'Choose CSV File',accept=c('text/csv', 'text/comma-separated-values,text/plain', '.csv'))),
@@ -32,8 +33,8 @@ dashboardPage(skin="red",
         conditionalPanel("input.sidebarmenu ==='visualFilters'",
             uiOutput("vis"),
             uiOutput("groupcol")
-        )
-    )
+        )    
+      )
   ),
   dashboardBody(
     useShinyjs(),
@@ -54,9 +55,12 @@ dashboardPage(skin="red",
       h1("Step-by-Step Guide",align = "center", id = "Guide"),
       fluidRow(
         div(id="steps",align="center",
-          HTML('<figure>'),img(src="Step1.png"),
-          HTML('<figcaption>Input Data</figcaption></figure><figure>'),img(src="Step2.png"),
-          HTML('<figcaption>Model and Visualize Data</figcaption></figure><figure>'),img(src="Step3.png"),
+          HTML('<figure>'),img(id="s1",src="Step1.png"),
+          img(id="s1gif",src="./Step1.gif"),
+          HTML('<figcaption>Input Data</figcaption></figure><figure>'),img(id="s2", src="Step2.png"),
+          img(id="s2gif",src="./step2b.gif"),
+          HTML('<figcaption>Model and Visualize Data</figcaption></figure><figure>'),img(id="s3",src="Step3.png"),
+          img(id="s3gif",src="./Step3.gif"),
           HTML('<figcaption>Download Results</figcaption></figure><figure>')
         )
       )
@@ -64,9 +68,11 @@ dashboardPage(skin="red",
     fluidRow(
       bsTooltip("model1_info" , "Cluster means are the centroids of each cluster. The sum of squares by cluster is a measure of the total variance in the dataset because k-means minimises the spread of the samples, the sum of squares. ", placement = "left", trigger = "hover"),
       
+      bsTooltip("model2_i1" , "If the p-value is less than 0.05, we reject the null hypothesis.The R-squared value is the percentage of the response variable variation that is explained by a linear model (R-squared > 0.5 is ideal). ", placement = "top", trigger = "hover"),
+      
       bsTooltip("model2_i2" , "If the points are randomly dispersed around the red line, a linear regression model is appropriate for the data; otherwise, a non-linear model is more appropriate.", placement = "right", trigger = "hover"),
 
-      bsTooltip("model3_info" , "Err represents the error sum of squares(SSE)-it is used to measure the variation within each node.", placement = "right", trigger = "hover"),
+      bsTooltip("model3_info" , "Err represents the error sum of squares(SSE)-it is used to measure the variation within each node.", placement = "left", trigger = "hover"),
 
       bsTooltip("boxplot-info", "A standardized way of displaying the distribution of data based on the minimum, first quartile, median, third quartile, and maximum; the first to third quartile is the interquartile range (IQR) in which outliers = 3xIQR above the third quartile or 3xIQR below the first quartile", placement = "bottom", trigger = "hover"),
       
